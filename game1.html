@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>古法·猜心术</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0e;
+            --card-bg: rgba(22, 22, 30, 0.9);
+            --gold-main: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-btn: linear-gradient(180deg, #d49400 0%, #aa7000 100%);
+            --text-color: #e0e0e0;
+            --border-gold: rgba(212, 175, 55, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            position: relative;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 罗盘背景 */
+        .bg-compass {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85vw;
+            height: 85vw;
+            max-width: 420px;
+            max-height: 420px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            pointer-events: none;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-compass::before {
+            content: '';
+            width: 75%;
+            height: 75%;
+            border-radius: 50%;
+            border: 1px dashed rgba(212, 175, 55, 0.18);
+        }
+
+        /* 顶部标题区 */
+        .header {
+            z-index: 1;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        h1 {
+            color: var(--gold-main);
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+            margin-bottom: 2px;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: rgba(212, 175, 55, 0.6);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* 太极图 */
+        .taiji-wrap {
+            z-index: 1;
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 8px 0;
+        }
+
+        .taiji-svg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
+            animation: rotate 25s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 主容器 */
+        .container {
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 18px 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .step-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-title {
+            color: var(--gold-light);
+            font-size: 1.35rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* 文字说明：大字号 */
+        .instruction {
+            font-size: 1.4rem;
+            line-height: 1.45;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .desc-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.15rem;
+            line-height: 1.45;
+            margin-bottom: 16px;
+        }
+
+        .highlight-num {
+            color: var(--gold-main);
+            font-size: 1.6rem;
+            font-weight: bold;
+        }
+
+        /* 矩阵面板 */
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 12px 0 16px 0;
+            background: rgba(10, 10, 14, 0.7);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .number-item {
+            font-size: 1.45rem;
+            font-weight: bold;
+            padding: 7px 0;
+            color: var(--gold-light);
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        /* 结果展示专属样式 */
+        .result-box {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(212, 175, 55, 0.08);
+            border-radius: 12px;
+            border: 1px solid var(--gold-main);
+        }
+
+        .result-number {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--gold-main);
+            text-shadow: 0 0 18px rgba(212, 175, 55, 0.6);
+            margin: 5px 0;
+        }
+
+        /* 按钮与指示点 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 0;
+            font-size: 1.35rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: var(--gold-btn);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(212, 148, 0, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: var(--gold-main);
+            box-shadow: 0 0 6px var(--gold-main);
+            transform: scale(1.2);
+        }
+
+        .footer-text {
+            z-index: 1;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 10px;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-compass"></div>
+
+    <!-- 标题 -->
+    <div class="header">
+        <h1>古法数理 · 猜心术</h1>
+        <div class="subtitle">ANCIENT MIND READING MAGIC</div>
+    </div>
+
+    <!-- 太极 -->
+    <div class="taiji-wrap">
+        <svg class="taiji-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="98" fill="#d4af37" stroke="#d4af37" stroke-width="2"/>
+            <path d="M 100,2 A 98,98 0 0,0 100,198 A 49,49 0 0,1 100,100 A 49,49 0 0,0 100,2" fill="#0b0b0e"/>
+            <path d="M 100,198 A 98,98 0 0,0 100,2 A 49,49 0 0,1 100,100 A 49,49 0 0,0 100,198" fill="#d4af37"/>
+            <circle cx="100" cy="51" r="14" fill="#d4af37"/>
+            <circle cx="100" cy="149" r="14" fill="#0b0b0e"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        
+        <!-- 试炼法则 -->
+        <div class="step-card active" id="card-start">
+            <div class="card-title">📜 试炼法则</div>
+            <div class="instruction">
+                请在心中默想一个<br>
+                <span class="highlight-num">1 到 60</span> 之间的整数。
+            </div>
+            <div class="desc-text">
+                切记勿向任何人透露。接下来将呈上六张魔数图，你只需如实告知心中所想是否包含在其中即可。
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">🧭开启魔数 🧭</button>
+        </div>
+
+        <!-- 互动感应卡片（6轮） -->
+        <div class="step-card" id="card-game">
+            <div class="progress-dots" id="dots-container"></div>
+            <div class="instruction">
+                你心中的数字，<br>是否蕴含在下方阵图中？
+            </div>
+            <div class="number-grid" id="grid">
+                <!-- 动态填充 -->
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="choose(false)">不在其中</button>
+                <button class="btn btn-primary" onclick="choose(true)">在其中</button>
+            </div>
+        </div>
+
+        <!-- 结果展示页 -->
+        <div class="step-card" id="card-result">
+            <div class="card-title">☯️ 天机已现</div>
+            <div class="result-box">
+                <div style="font-size: 1.2rem; color: #fff;">你心中默想的数字是</div>
+                <div class="result-number" id="result-num">0</div>
+            </div>
+            <button class="btn btn-primary" onclick="resetGame()"> 🔄再次感应 🔄</button>
+        </div>
+
+    </div>
+
+    <div class="footer-text">古代数学智慧 · 数理奇观</div>
+
+    <script>
+        const weights = [1, 2, 4, 8, 16, 32];
+        let currentStep = 0;
+        let totalValue = 0;
+        let audioCtx = null;
+
+        function playSound(freq, duration) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function initDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const dot = document.createElement('div');
+                dot.className = `dot ${i === currentStep ? 'active' : ''}`;
+                container.appendChild(dot);
+            }
+        }
+
+        function startGame() {
+            playSound(587.33, 0.3);
+            currentStep = 0;
+            totalValue = 0;
+            showStep();
+            document.getElementById('card-start').classList.remove('active');
+            document.getElementById('card-game').classList.add('active');
+        }
+
+        // Fisher-Yates 随机打乱算法
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showStep() {
+            initDots();
+            const weight = weights[currentStep];
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            const nums = [];
+            for (let i = 1; i <= 63; i++) {
+                if ((i & weight) !== 0 && i <= 60) {
+                    nums.push(i);
+                }
+            }
+
+            // 每次展示前都随机打乱顺序，确保位置不固定
+            shuffleArray(nums);
+
+            nums.forEach(num => {
+                const div = document.createElement('div');
+                div.className = 'number-item';
+                div.textContent = num;
+                grid.appendChild(div);
+            });
+        }
+
+        function choose(isPresent) {
+            // 防止快速重复点击导致跳过题目或数组越界。
+            if (currentStep < 0 || currentStep >= weights.length) return;
+            playSound(isPresent ? 880 : 440, 0.2);
+            if (isPresent) {
+                totalValue += weights[currentStep];
+            }
+            currentStep++;
+
+            if (currentStep < 6) {
+                showStep();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            // 播放结果音效；若外部音频文件不存在或被浏览器拦截，
+            // 仍使用 Web Audio 合成音效，不调用未定义的函数。
+            const audio = document.getElementById('magic-audio');
+            if (audio) {
+                try {
+                    audio.currentTime = 0;
+                    const playPromise = audio.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => {
+                            playSound(880, 0.6);
+                        });
+                    }
+                } catch (e) {
+                    playSound(880, 0.6);
+                }
+            }
+
+            playSound(329.63, 1.2);
+            document.getElementById('card-game').classList.remove('active');
+            document.getElementById('card-result').classList.add('active');
+
+            // 1～60 的有效数字至少包含一个二进制位；不把异常的 0 偷偷改成 1。
+            document.getElementById('result-num').textContent = totalValue;
+        }
+
+        function resetGame() {
+            playSound(523.25, 0.2);
+            currentStep = 0;
+            totalValue = 0;
+            document.getElementById('card-result').classList.remove('active');
+            document.getElementById('card-game').classList.remove('active');
+            document.getElementById('card-start').classList.add('active');
+        }
+    </script>
+<audio id="magic-audio" src="sound/magic.mp3" preload="auto"></audio>
+</body>
+<!-- 悬浮返回主页按钮（直接粘贴在 <body> 标签下方即可） -->
+<a href="index.html" style="
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 999;
+    padding: 7px 14px;
+    background: rgba(22, 22, 30, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 20px;
+    color: #f3e5ab;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+">◀ 返回十阵</a>
+</html>

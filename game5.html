@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>远古通灵术 - 5×5 图片矩阵读心</title>
+    <style>
+        :root {
+            --bg-color: #0b090a;
+            --stone-bg: rgba(30, 27, 24, 0.85);
+            --stone-border: #5c4d3c;
+            --gold-primary: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.4);
+            --text-light: #f4f1de;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            font-family: 'Cinzel', 'Times New Roman', Georgia, serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(20, 15, 10, 0.8), #050404 90%),
+                radial-gradient(circle at 20% 20%, rgba(224, 122, 95, 0.05), transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(129, 178, 154, 0.05), transparent 40%);
+        }
+
+        .magic-circle {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 700px;
+            height: 700px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+            animation: rotateCircle 120s linear infinite;
+        }
+
+        @keyframes rotateCircle {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 95%;
+            max-width: 850px;
+            margin: 20px auto;
+            padding: 25px;
+            background: var(--stone-bg);
+            border: 2px solid var(--stone-border);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(8px);
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--gold-primary);
+            text-shadow: 0 0 10px var(--gold-glow);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #a89f91;
+            margin-bottom: 15px;
+        }
+
+        .mode-selector {
+            display: inline-flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 20px;
+            border: 1px solid var(--stone-border);
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: #a89f91;
+            padding: 8px 18px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: var(--stone-border);
+            color: var(--gold-primary);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .status-box {
+            min-height: 50px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .instruction {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3a332c;
+            border: 1px solid var(--stone-border);
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: var(--gold-primary);
+            box-shadow: 0 0 8px var(--gold-primary);
+        }
+
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .matrix-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr) auto;
+            gap: 8px;
+            align-items: center;
+            background: rgba(15, 13, 11, 0.6);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(92, 77, 60, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .matrix-row:hover {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+            background: rgba(30, 25, 20, 0.8);
+        }
+
+        .glyph-card {
+            aspect-ratio: 1;
+            background: radial-gradient(circle at 30% 30%, #2a241e, #14110e);
+            border: 1px solid rgba(140, 115, 85, 0.3);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            overflow: hidden;
+        }
+
+        .glyph-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .select-row-btn {
+            background: linear-gradient(135deg, #3a2e21, #1a140e);
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .select-row-btn:hover {
+            background: var(--gold-primary);
+            color: #0b090a;
+            box-shadow: 0 0 10px var(--gold-primary);
+            transform: scale(1.05);
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .result-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .result-card {
+            background: var(--stone-bg);
+            border: 2px solid var(--gold-primary);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.4);
+            max-width: 350px;
+            width: 90%;
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .result-overlay.active .result-card {
+            transform: scale(1);
+        }
+
+        .result-img-container {
+            width: 150px;
+            height: 150px;
+            margin: 15px auto;
+            border-radius: 10px;
+            border: 2px solid var(--gold-primary);
+            overflow: hidden;
+            box-shadow: 0 0 20px var(--gold-glow);
+            animation: floatSymbol 3s ease-in-out infinite;
+        }
+
+        .result-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes floatSymbol {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .result-title {
+            color: var(--gold-primary);
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .result-desc {
+            color: #a89f91;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background: transparent;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: var(--gold-primary);
+            color: #0b090a;
+            box-shadow: 0 0 15px var(--gold-primary);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px 10px; }
+            h1 { font-size: 1.5rem; }
+            .select-row-btn { padding: 6px 8px; font-size: 0.75rem; }
+            .matrix-row { padding: 5px 6px; gap: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <svg class="magic-circle" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="none" stroke="#d4af37" stroke-width="0.5" stroke-dasharray="2 1"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#d4af37" stroke-width="0.3"/>
+        <polygon points="50,10 84.6,70 15.4,70" fill="none" stroke="#d4af37" stroke-width="0.3"/>
+        <polygon points="50,90 84.6,30 15.4,30" fill="none" stroke="#d4af37" stroke-width="0.3"/>
+    </svg>
+
+    <div class="container">
+        <header>
+            <h1>远古通灵魔阵</h1>
+            <div class="subtitle">5×5 图像矩阵思维洞察秘术</div>
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" id="btn-maya" onclick="switchTheme('maya')">🗿 玛雅密阵 (01-25)</button>
+                <button class="mode-btn" id="btn-sumer" onclick="switchTheme('sumer')">📜 苏美尔密阵 (26-50)</button>
+            </div>
+        </header>
+
+        <div class="status-box">
+            <div class="instruction" id="instruction-text">暗记阵中任意一个图像，点击其所在的行</div>
+            <div class="step-indicator">
+                <div class="step-dot active" id="dot-1"></div>
+                <div class="step-dot" id="dot-2"></div>
+            </div>
+        </div>
+
+        <div class="matrix-container" id="matrix-container"></div>
+    </div>
+
+    <div class="result-overlay" id="result-overlay">
+        <div class="result-card">
+            <div class="result-title">通灵感应完成</div>
+            <div class="result-img-container">
+                <img id="result-img" src="" alt="目标图像">
+            </div>
+            <div class="result-title" id="result-name" style="font-size: 1.1rem; color:#fff;">-</div>
+            <div class="result-desc" id="result-meaning">神明已通过矩阵转置锁定了你的心灵映像</div>
+            <button class="restart-btn" onclick="resetGame()">再次感应</button>
+        </div>
+    </div>
+
+    <script>
+        // 自动生成 01.jpg ~ 25.jpg (玛雅密阵) 和 26.jpg ~ 50.jpg (苏美尔密阵)
+        const MAYA_GLYPHS = Array.from({ length: 25 }, (_, i) => {
+            const numStr = String(i + 1).padStart(2, '0');
+            return {
+                id: i + 1,
+                src: `images/${numStr}.jpg`,
+                name: `玛雅神秘符号 #${numStr}`
+            };
+        });
+
+        const SUMER_GLYPHS = Array.from({ length: 25 }, (_, i) => {
+            const numStr = String(i + 26).padStart(2, '0');
+            return {
+                id: i + 26,
+                src: `images/${numStr}.jpg`,
+                name: `苏美尔远古符文 #${numStr}`
+            };
+        });
+
+        let currentTheme = 'maya';
+        let step = 1;
+        let matrix = [];
+        let selectedRowIndexStep1 = -1;
+
+        function playTone(freq, type = 'sine', duration = 0.2) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function switchTheme(theme) {
+            currentTheme = theme;
+            document.getElementById('btn-maya').classList.toggle('active', theme === 'maya');
+            document.getElementById('btn-sumer').classList.toggle('active', theme === 'sumer');
+            resetGame();
+        }
+
+        function resetGame() {
+            step = 1;
+            selectedRowIndexStep1 = -1;
+            document.getElementById('result-overlay').classList.remove('active');
+            document.getElementById('dot-1').className = 'step-dot active';
+            document.getElementById('dot-2').className = 'step-dot';
+            document.getElementById('instruction-text').textContent = '暗记阵中任意一个图像，点击其所在的行';
+            
+            const pool = currentTheme === 'maya' ? [...MAYA_GLYPHS] : [...SUMER_GLYPHS];
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            
+            matrix = [];
+            for (let r = 0; r < 5; r++) {
+                matrix.push(pool.slice(r * 5, (r + 1) * 5));
+            }
+            renderMatrix();
+        }
+
+        function renderMatrix() {
+            const container = document.getElementById('matrix-container');
+            container.innerHTML = '';
+
+            matrix.forEach((row, rowIndex) => {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'matrix-row';
+
+                row.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'glyph-card';
+                    card.innerHTML = `<img src="${item.src}" alt="${item.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%23222'/><text x='50%' y='50%' fill='%23d4af37' font-size='12' dominant-baseline='middle' text-anchor='middle'>缺失图片</text></svg>';">`;
+                    rowEl.appendChild(card);
+                });
+
+                const btn = document.createElement('button');
+                btn.className = 'select-row-btn';
+                btn.textContent = `选中此行 (${rowIndex + 1})`;
+                btn.onclick = () => onSelectRow(rowIndex);
+                rowEl.appendChild(btn);
+
+                container.appendChild(rowEl);
+            });
+        }
+
+        function onSelectRow(rowIndex) {
+            playTone(440 + rowIndex * 80, 'sine', 0.25);
+
+            if (step === 1) {
+                selectedRowIndexStep1 = rowIndex;
+                step = 2;
+
+                document.getElementById('dot-1').className = 'step-dot';
+                document.getElementById('dot-2').className = 'step-dot active';
+                document.getElementById('instruction-text').textContent = '圣阵已重新排列！找到你暗记的图像，再次点击其所在的行';
+
+                // 矩阵转置：第1轮选择的行，均匀散布到第2轮各行的同索引位置
+                let newMatrix = Array.from({ length: 5 }, () => []);
+                for (let c = 0; c < 5; c++) {
+                    for (let r = 0; r < 5; r++) {
+                        newMatrix[c][r] = matrix[r][c];
+                    }
+                }
+                matrix = newMatrix;
+                renderMatrix();
+            } else if (step === 2) {
+                const target = matrix[rowIndex][selectedRowIndexStep1];
+                showResult(target);
+            }
+        }
+
+       function showResult(item) {
+    // 播放你准备的魔幻 mp3 音效
+    const audio = document.getElementById('magic-audio');
+    if (audio) {
+        audio.currentTime = 0; // 每次从头播放
+        audio.play().catch(e => {
+            console.log("自动播放受浏览器限制，需用户先与页面交互");
+            // 如果浏览器拦截自动播放，则降级使用内置合成音
+            playTone(880, 'triangle', 0.6);
+        });
+    }
+
+    document.getElementById('result-img').src = item.src;
+    document.getElementById('result-name').textContent = item.name;
+    document.getElementById('result-overlay').classList.add('active');
+}
+
+        window.onload = resetGame;
+    </script>
+<audio id="magic-audio" src="sound/magic.mp3" preload="auto"></audio>
+</body>
+<!-- 悬浮返回主页按钮（直接粘贴在 <body> 标签下方即可） -->
+<a href="index.html" style="
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 999;
+    padding: 7px 14px;
+    background: rgba(22, 22, 30, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 20px;
+    color: #f3e5ab;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+">◀ 返回十阵</a>
+</html>

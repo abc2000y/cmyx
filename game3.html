@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>古法数理·乾坤读心</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0e;
+            --card-bg: rgba(22, 22, 30, 0.94);
+            --gold-main: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-btn: linear-gradient(180deg, #d49400 0%, #aa7000 100%);
+            --text-color: #e0e0e0;
+            --border-gold: rgba(212, 175, 55, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 12px 20px 12px;
+            position: relative;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 悬浮返回主页按钮 */
+        .back-btn {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 999;
+            padding: 6px 12px;
+            background: rgba(22, 22, 30, 0.88);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            border-radius: 20px;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-decoration: none;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        /* 罗盘背景 */
+        .bg-compass {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85vw;
+            height: 85vw;
+            max-width: 420px;
+            max-height: 420px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            pointer-events: none;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-compass::before {
+            content: '';
+            width: 75%;
+            height: 75%;
+            border-radius: 50%;
+            border: 1px dashed rgba(212, 175, 55, 0.18);
+        }
+
+        /* 顶部标题区 */
+        .header {
+            z-index: 1;
+            text-align: center;
+            margin-top: 28px;
+        }
+
+        h1 {
+            color: var(--gold-main);
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
+
+        .subtitle {
+            font-size: 0.7rem;
+            color: rgba(212, 175, 55, 0.6);
+            letter-spacing: 2px;
+        }
+
+        /* 主容器 */
+        .container {
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 8px 0;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 16px 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
+            text-align: center;
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .step-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .guide-box {
+            background: rgba(10, 10, 14, 0.65);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            line-height: 1.55;
+            color: #fff;
+            text-align: left;
+        }
+
+        .highlight {
+            color: var(--gold-main);
+            font-weight: bold;
+        }
+
+        /* 4列 x 6行 = 24格，手机上清晰巨幅显示 */
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 10px 0 16px 0;
+            background: rgba(10, 10, 14, 0.8);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.18);
+        }
+
+        .symbol-cell {
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 8px;
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell-num {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 3px;
+        }
+
+        .cell-icon {
+            font-size: 1.6rem;
+            line-height: 1.1;
+        }
+
+        /* 按钮 */
+        .btn {
+            width: 100%;
+            padding: 14px 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: var(--gold-btn);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(212, 148, 0, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        /* 揭晓页水晶太极球 */
+        .crystal-orb {
+            width: 135px;
+            height: 135px;
+            margin: 18px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(212, 175, 55, 0.35), rgba(15, 15, 22, 0.95) 70%);
+            border: 2px solid var(--gold-main);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.45), inset 0 0 20px rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5rem;
+            animation: orbPulse 2.5s infinite alternate;
+        }
+
+        @keyframes orbPulse {
+            from { transform: scale(0.96); box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+            to { transform: scale(1.04); box-shadow: 0 0 38px rgba(212, 175, 55, 0.65); }
+        }
+
+        .footer-text {
+            z-index: 1;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">◀ 返回十阵</a>
+
+    <div class="bg-compass"></div>
+
+    <div class="header">
+        <h1>古法数理 · 乾坤读心</h1>
+        <div class="subtitle">MYSTIC SYMBOL TELEPATHY</div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 注意：这里去掉了默认的 active，改为由 JS 在表格生成后瞬间激活显示 -->
+        <div class="step-card" id="card-main">
+            <div class="guide-box">
+                1. 任意挑选一个 <span class="highlight">10 ~ 99</span> 的两位数<br>
+                2. 用这个数 <span class="highlight">减去十位</span> 再 <span class="highlight">减去个位</span><br>
+                3. 在下表中找到结果对应的<span class="highlight">符文</span>，牢记心中
+            </div>
+
+            <div class="symbol-grid" id="symbol-grid">
+                <!-- 动态生成 24 格打乱矩阵 -->
+            </div>
+
+            <button class="btn btn-primary" onclick="revealSymbol()">已牢记符文 · 感应天机 🔮</button>
+        </div>
+
+        <!-- 揭晓页 -->
+        <div class="step-card" id="card-result">
+            <div style="font-size: 1.35rem; color: var(--gold-light); font-weight: bold; margin-top: 6px;">
+                ☯️ 心灵感应 · 符文显现
+            </div>
+            <div style="font-size: 1.05rem; color: rgba(255,255,255,0.75); margin-top: 6px;">
+                你心中所记的神秘符文正是：
+            </div>
+
+            <div class="crystal-orb" id="result-symbol">☯️</div>
+
+            <button class="btn btn-primary" style="margin-top: 10px;" onclick="initGame()">更换星象 · 再次感应 🔄</button>
+        </div>
+
+    </div>
+
+    <div class="footer-text">古代数学智慧 · 乾坤奇观</div>
+
+    <script>
+        const symbols = [
+            "☯️", "🔮", "🧿", "🌙", "☀️", "⭐",
+            "🔥", "💧", "⚡", "🍃", "🪷", "🐉",
+            "🐢", "🐍", "🦉", "🗝️", "🕯️", "⏳",
+            "🧭", "📜", "🏺", "💎", "👑", "⚔️",
+            "🛡️", "🔱", "⚜️", "🔯", "☸️", "🦅"
+        ];
+
+        let targetSymbol = "☯️";
+        let audioCtx = null;
+
+        function playSound(freq, duration) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initGame() {
+            // 1. 随机挑选本次 9 的倍数共享的神秘符文
+            const randomIndex = Math.floor(Math.random() * symbols.length);
+            targetSymbol = symbols[randomIndex];
+
+            const otherSymbols = symbols.filter(s => s !== targetSymbol);
+
+            // 2. 准备 24 格数据
+            const magicNumbers = [9, 18, 27, 36, 45, 54, 63, 72, 81];
+            const decoyNumbers = [12, 15, 23, 31, 38, 44, 52, 58, 67, 74, 78, 85, 91, 95, 17, 28];
+
+            let cellDataList = [];
+
+            magicNumbers.forEach(num => {
+                cellDataList.push({ num: num, icon: targetSymbol });
+            });
+
+            shuffleArray(decoyNumbers);
+            for (let i = 0; i < (24 - magicNumbers.length); i++) {
+                const randDecoy = decoyNumbers[i % decoyNumbers.length];
+                const randIcon = otherSymbols[Math.floor(Math.random() * otherSymbols.length)];
+                cellDataList.push({ num: randDecoy, icon: randIcon });
+            }
+
+            // 3. 彻底随机洗牌
+            shuffleArray(cellDataList);
+
+            // 4. 先在内存中把表格填好
+            const grid = document.getElementById('symbol-grid');
+            grid.innerHTML = '';
+
+            cellDataList.forEach(item => {
+                const cell = document.createElement('div');
+                cell.className = 'symbol-cell';
+                cell.innerHTML = `
+                    <div class="cell-num">${item.num}</div>
+                    <div class="cell-icon">${item.icon}</div>
+                `;
+                grid.appendChild(cell);
+            });
+
+            // 5. 表格填充完毕后，才切换卡片状态（彻底消灭闪烁和后弹出问题）
+            document.getElementById('card-result').classList.remove('active');
+            document.getElementById('card-main').classList.add('active');
+        }
+
+        function revealSymbol() {
+            const audio = document.getElementById('magic-audio');
+            if (audio) {
+                try {
+                    audio.currentTime = 0;
+                    const playPromise = audio.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => {
+                            playSound(329.63, 1.2);
+                        });
+                    }
+                } catch (e) {
+                    playSound(329.63, 1.2);
+                }
+            } else {
+                playSound(329.63, 1.2);
+            }
+
+            document.getElementById('result-symbol').textContent = targetSymbol;
+            document.getElementById('card-main').classList.remove('active');
+            document.getElementById('card-result').classList.add('active');
+        }
+
+        // 页面一加载立刻静默生成，生成完毕瞬间展示
+        window.onload = initGame;
+    </script>
+    <audio id="magic-audio" src="sound/magic.mp3" preload="auto"></audio>
+</body>
+</html>
