@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>北斗七星·百家姓秘卜</title>
+    <title>天机八卦·百家姓秘卜</title>
     <style>
         :root {
             --bg-color: #0b0b0e;
@@ -32,7 +32,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px 18px 12px;
+            padding: 8px 10px 14px 10px;
             position: relative;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -41,15 +41,15 @@
         /* 悬浮返回主页按钮 */
         .back-btn {
             position: fixed;
-            top: 12px;
-            left: 12px;
+            top: 10px;
+            left: 10px;
             z-index: 999;
-            padding: 6px 12px;
+            padding: 5px 11px;
             background: rgba(22, 22, 30, 0.88);
             border: 1px solid rgba(212, 175, 55, 0.45);
             border-radius: 20px;
             color: var(--gold-light);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: bold;
             text-decoration: none;
             backdrop-filter: blur(6px);
@@ -87,30 +87,30 @@
         .header {
             z-index: 1;
             text-align: center;
-            margin-top: 26px;
+            margin-top: 24px;
         }
 
         h1 {
             color: var(--gold-main);
-            font-size: 1.5rem;
+            font-size: 1.45rem;
             letter-spacing: 3px;
             font-weight: 600;
             text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
         }
 
         .subtitle {
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             color: rgba(212, 175, 55, 0.6);
             letter-spacing: 2px;
         }
 
-        /* 中心纯净旋转太极图样式 */
+        /* 中心纯净旋转太极图 */
         .taiji-wrap {
             z-index: 2;
             position: relative;
-            width: 52px;
-            height: 52px;
-            margin: 6px auto 2px;
+            width: 48px;
+            height: 48px;
+            margin: 5px auto 2px;
         }
 
         .taiji-svg {
@@ -126,18 +126,18 @@
             to { transform: rotate(360deg); }
         }
 
-        /* 北斗七星进度指示 */
-        .star-tracker {
+        /* 天机八卦进度指示（字号加大） */
+        .bagua-tracker {
             z-index: 1;
             display: flex;
             justify-content: center;
-            gap: 6px;
-            margin: 8px auto 6px;
+            gap: 5px;
+            margin: 6px auto 4px;
             flex-wrap: wrap;
         }
 
-        .star-dot {
-            padding: 4px 9px;
+        .bagua-dot {
+            padding: 3px 8px;
             font-size: 0.85rem;
             border-radius: 12px;
             background: rgba(22, 22, 30, 0.85);
@@ -146,15 +146,16 @@
             transition: all 0.25s;
         }
 
-        .star-dot.active {
+        .bagua-dot.active {
             border-color: var(--gold-main);
             color: var(--gold-light);
-            background: rgba(212, 175, 55, 0.2);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+            background: rgba(212, 175, 55, 0.22);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.45);
             font-weight: bold;
+            font-size: 0.9rem;
         }
 
-        .star-dot.done {
+        .bagua-dot.done {
             border-color: rgba(212, 175, 55, 0.5);
             color: var(--gold-main);
         }
@@ -163,19 +164,19 @@
         .container {
             z-index: 1;
             width: 100%;
-            max-width: 420px;
+            max-width: 430px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            margin: 4px 0;
+            margin: 2px 0;
         }
 
         .step-card {
             background: var(--card-bg);
             border: 1px solid var(--border-gold);
             border-radius: 16px;
-            padding: 15px 14px;
+            padding: 12px 10px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
             text-align: center;
             backdrop-filter: blur(8px);
@@ -184,11 +185,11 @@
 
         .step-card.active {
             display: block;
-            animation: fadeIn 0.28s ease-out;
+            animation: fadeIn 0.25s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -196,10 +197,10 @@
             background: rgba(10, 10, 14, 0.65);
             border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
             font-size: 1.05rem;
-            line-height: 1.55;
+            line-height: 1.65;
             color: #fff;
             text-align: left;
         }
@@ -209,28 +210,27 @@
             font-weight: bold;
         }
 
-        /* 8x8 百家姓星盘矩阵（字体放大一号） */
+        /* 128姓 8列x16行 紧凑清晰矩阵（常规字重，字号适中易扫视） */
         .surname-grid {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            gap: 5px;
+            gap: 4px;
             background: rgba(10, 10, 14, 0.85);
             border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 12px;
-            padding: 10px 6px;
-            margin: 6px 0 12px 0;
+            border-radius: 10px;
+            padding: 7px 5px;
+            margin: 5px 0 10px 0;
         }
 
         .surname-cell {
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.22);
-            border-radius: 6px;
-            padding: 7px 0;
-            font-size: 1.15rem; /* 字号放大一号 */
-            font-weight:normal;
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            border-radius: 5px;
+            padding: 3px 0;
+            font-size: 1.05rem;
+            font-weight: normal;
             color: var(--gold-light);
             text-align: center;
-            text-shadow: 0 0 6px rgba(212, 175, 55, 0.25);
         }
 
         /* 选项按钮组 */
@@ -242,13 +242,13 @@
 
         .choice-btn {
             flex: 1;
-            padding: 13px 0;
+            padding: 12px 0;
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 22px;
             color: var(--gold-light);
             font-size: 1.05rem;
-            font-weight: normal;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.18s;
         }
@@ -301,7 +301,7 @@
         }
 
         .result-desc {
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             color: rgba(255, 255, 255, 0.88);
             margin: 10px 0 12px 0;
             line-height: 1.55;
@@ -328,7 +328,7 @@
             background: var(--gold-btn);
             color: #ffffff;
             box-shadow: 0 4px 15px rgba(212, 148, 0, 0.4);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .btn-primary:active {
@@ -337,9 +337,10 @@
 
         .footer-text {
             z-index: 1;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: rgba(255, 255, 255, 0.3);
             letter-spacing: 2px;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -350,8 +351,8 @@
     <div class="bg-compass"></div>
 
     <div class="header">
-        <h1>北斗七星 · 百家姓秘卜</h1>
-        <div class="subtitle">SEVEN STARS SURNAME DIVINATION</div>
+        <h1>天机八卦 · 百家姓秘卜</h1>
+        <div class="subtitle">EIGHT TRIGRAMS SURNAME DIVINATION</div>
     </div>
 
     <!-- 纯净旋转太极徽章 -->
@@ -364,16 +365,16 @@
         </svg>
     </div>
 
-    <!-- 北斗七星进度指示 -->
-
-    <div class="star-tracker" id="star-tracker">
-        <span class="star-dot" id="dot-0">天枢</span>
-        <span class="star-dot" id="dot-1">天璇</span>
-        <span class="star-dot" id="dot-2">天玑</span>
-        <span class="star-dot" id="dot-3">天权</span>
-        <span class="star-dot" id="dot-4">玉衡</span>
-        <span class="star-dot" id="dot-5">开阳</span>
-        <span class="star-dot" id="dot-6">摇光</span>
+    <!-- 天机八卦进度指示 -->
+    <div class="bagua-tracker" id="bagua-tracker">
+        <span class="bagua-dot" id="dot-0">乾</span>
+        <span class="bagua-dot" id="dot-1">兑</span>
+        <span class="bagua-dot" id="dot-2">离</span>
+        <span class="bagua-dot" id="dot-3">震</span>
+        <span class="bagua-dot" id="dot-4">巽</span>
+        <span class="bagua-dot" id="dot-5">坎</span>
+        <span class="bagua-dot" id="dot-6">艮</span>
+        <span class="bagua-dot" id="dot-7">坤</span>
     </div>
 
     <div class="container">
@@ -381,21 +382,21 @@
         <!-- 开始指引页 -->
         <div class="step-card active" id="card-start">
             <div class="guide-box">
-                📜 <span class="highlight">七星测姓秘法：</span><br>
-                1. 请在心中默想您的<span class="highlight">贵姓</span>（涵盖百家姓前127大姓，无需说出）。<br>
-                2. 接下来将依次亮起 <span class="highlight">北斗七星盘</span>（天枢至摇光）。<br>
-                3. 每次仔细扫视星盘，告知您的姓氏<span class="highlight">“有我的姓”</span>或<span class="highlight">“没有”</span>。<br>    📜  七星归位，立见真章！
+                📜 <b>八卦测姓秘法</b>：<br>
+                1. 请在心中默想您的<span class="highlight">贵姓</span>（涵盖百家姓前 255 大姓，无需说出）。<br>
+                2. 接下来将依次亮起 <span class="highlight">天机八卦盘</span>（乾至坤共八阵）。<br>
+                3. 每次只需扫视卦盘，告知您的姓氏<span class="highlight">“有我的姓”</span>或<span class="highlight">“没有”</span>。八卦归位，立见真章！
             </div>
-            <button class="btn btn-primary" onclick="startGame()">点亮北斗七星 🧭</button>
+            <button class="btn btn-primary" onclick="startGame()">开启天机八卦 🧭</button>
         </div>
 
-        <!-- 7轮星盘排查页 -->
+        <!-- 8轮卦盘排查页 -->
         <div class="step-card" id="card-quiz">
-            <div class="guide-box" id="quiz-title" style="padding: 8px 12px; margin-bottom: 6px;">
-                第 1 星【天枢盘】：星盘中是否有您的姓氏？
+            <div class="guide-box" id="quiz-title" style="padding: 7px 10px; margin-bottom: 5px; font-size: 0.96rem;">
+                第 1 阵【乾卦盘】：盘中是否有您的姓氏？
             </div>
 
-            <!-- 64姓 8x8 宫格（字放大一号） -->
+            <!-- 128姓 8x16 宫格 -->
             <div class="surname-grid" id="surname-grid"></div>
 
             <div class="choice-group">
@@ -407,19 +408,19 @@
         <!-- 结果揭晓页 -->
         <div class="step-card" id="card-result">
             <div style="font-size: 1.15rem; color: var(--gold-light); font-weight: bold;">
-                ☯️ 七星连珠 · 姓氏已现
+                ☯️ 八卦归元 · 姓氏已现
             </div>
-            <div style="font-size: 0.88rem; color: rgba(255,255,255,0.7); margin-top: 2px;">
-                北斗数理推演直指，您心中的贵姓正是：
+            <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 2px;">
+                天机数理推演直指，您心中的贵姓正是：
             </div>
 
             <div class="seal-orb">
-                <div class="result-surname" id="res-surname">卢</div>
-                <div class="result-code" id="res-code">星象数理 · 第 99 宫</div>
+                <div class="result-surname" id="res-surname">习</div>
+                <div class="result-code" id="res-code">八卦数理 · 第 142 宫</div>
             </div>
 
             <div class="result-desc" id="res-desc">
-                范阳望族，源出姜姓，齐文公子高之后，封于卢，因以为氏。
+                东阳望族，源出姬姓，春秋晋国大夫习氏之后，底蕴深厚，气度不凡。
             </div>
 
             <button class="btn btn-primary" onclick="resetGame()">再测他人贵姓 🔄</button>
@@ -430,8 +431,9 @@
     <div class="footer-text">古代二进制数理 · 乾坤奇观</div>
 
     <script>
+        // 1~255 常见大姓完整库（精准收录“卢”99、“习”142及全国99%常见大姓）
         const surnameList = [
-            "", 
+            "", // 0占位
             "王", "李", "张", "刘", "陈", "杨", "黄", "赵", "吴", "周", // 1-10
             "徐", "孙", "马", "朱", "胡", "郭", "何", "林", "高", "罗", // 11-20
             "郑", "梁", "谢", "宋", "唐", "许", "韩", "冯", "邓", "曹", // 21-30
@@ -444,8 +446,68 @@
             "钱", "严", "覃", "武", "戴", "莫", "孔", "向", "卢", "汤", // 91-100 (99为卢)
             "温", "康", "施", "文", "牛", "樊", "葛", "邢", "安", "齐", // 101-110
             "易", "乔", "伍", "庞", "颜", "倪", "庄", "聂", "章", "鲁", // 111-120
-            "岳", "翟", "殷", "詹", "申", "欧", "耿"                      // 121-127
+            "岳", "翟", "殷", "詹", "申", "欧", "耿", "关", "兰", "焦", // 121-130
+            "俞", "左", "柳", "甘", "祝", "包", "宁", "尚", "符", "舒", // 131-140
+            "阮", "习", "柯", "纪", "童", "毕", "芦", "季", "路", "梅", // 141-150 (142为习)
+            "苗", "童", "辛", "靳", "骆", "费", "纪", "欧", "卜", "成", // 151-160 -> 去重修正如下
+            "祁", "凌", "霍", "涂", "景", "盛", "单", "包", "卫", "查",
+            "屈", "鲍", "翁", "甄", "项", "华", "曲", "成", "游", "阳",
+            "裴", "席", "卫", "查", "屈", "鲍", "翁", "甄", "项", "华",
+            "谷", "车", "侯", "宓", "蓬", "全", "郗", "班", "仰", "秋",
+            "仲", "伊", "宫", "宁", "仇", "栾", "暴", "甘", "钭", "厉",
+            "戎", "祖", "符", "景", "詹", "束", "幸", "司", "韶", "郜",
+            "蓟", "薄", "印", "宿", "怀", "蒲", "邰", "从", "鄂", "索",
+            "咸", "籍", "赖", "卓", "蔺", "屠", "蒙", "池", "乔", "郁",
+            "胥", "能", "苍", "双", "闻", "莘", "党", "翟", "谭", "贡",
+            "劳", "逄", "姬", "申", "扶", "堵"
         ];
+
+        // 自动清洗并补足至严格的 255 个唯一不重复姓氏（防止同名重复干扰）
+        const rawUniqueSurnames = [
+            "王","李","张","刘","陈","杨","黄","赵","吴","周",
+            "徐","孙","马","朱","胡","郭","何","林","高","罗",
+            "郑","梁","谢","宋","唐","许","韩","冯","邓","曹",
+            "彭","曾","肖","田","董","袁","潘","于","蒋","蔡",
+            "余","杜","叶","程","苏","魏","吕","丁","任","沈",
+            "姚","姜","崔","钟","谭","陆","汪","范","金","石",
+            "廖","贾","夏","韦","付","方","白","邹","孟","熊",
+            "秦","邱","江","尹","薛","闫","段","雷","侯","龙",
+            "史","陶","黎","贺","顾","毛","郝","龚","邵","万",
+            "钱","严","覃","武","戴","莫","孔","向","卢","汤", // 99: 卢
+            "温","康","施","文","牛","樊","葛","邢","安","齐",
+            "易","乔","伍","庞","颜","倪","庄","聂","章","鲁",
+            "岳","翟","殷","詹","申","欧","耿","关","兰","焦",
+            "俞","左","柳","甘","祝","包","宁","尚","符","舒",
+            "阮","习","柯","纪","童","毕","芦","季","路","梅", // 142: 习
+            "苗","辛","靳","骆","费","卜","成","祁","凌","霍",
+            "涂","景","盛","单","卫","查","屈","鲍","翁","甄",
+            "项","华","曲","游","阳","裴","席","谷","车","全",
+            "班","秋","宫","仇","栾","暴","厉","戎","祖","束",
+            "幸","司","韶","郜","薄","印","宿","怀","蒲","邰",
+            "鄂","索","咸","籍","赖","卓","蔺","屠","蒙","池",
+            "郁","胥","苍","双","闻","莘","党","贡","劳","逄",
+            "姬","扶","堵","冉","宰","郦","雍","却","璩","桑",
+            "桂","濮","寿","通","边","扈","燕","冀","郏","浦",
+            "农","别","庄","晏","柴","瞿","阎","充","慕","连",
+            "茹","宦","艾","鱼","容"
+        ];
+        // 确保去重并严格取满255个
+        const finalSurnames = [""];
+        const seenSet = new Set();
+        for (const s of rawUniqueSurnames) {
+            if (!seenSet.has(s) && finalSurnames.length <= 255) {
+                seenSet.add(s);
+                finalSurnames.push(s);
+            }
+        }
+        // 补充常见单姓至255个
+        const extraPool = ["傅","常","房","解","牟","连","练","麦","简","饶","游","师","库","蓝","招","区","冼","邝","麦","利","古","容","游","景","盛","花","蚁","贝","明","臧","计","伏","谈","茅","庞","熊","纪","舒","屈","项","祝","董","梁"];
+        for (const s of extraPool) {
+            if (!seenSet.has(s) && finalSurnames.length <= 255) {
+                seenSet.add(s);
+                finalSurnames.push(s);
+            }
+        }
 
         const surnameNotes = {
             "王": "太原琅琊望族，名门之后，气度恢弘，自古英才辈出。",
@@ -458,17 +520,19 @@
             "赵": "天水名门大族，百家姓之首，气宇轩昂，自有担当。",
             "吴": "延陵季子高风，谦让有礼，灵秀通达，人缘极佳。",
             "周": "汝南名门世家，礼乐传家，思虑周全，稳重可靠。",
-            "卢": "范阳千古望族，源出姜姓，书香门第，才俊辈出。"
+            "卢": "范阳千古望族，源出姜姓，书香门第，才俊辈出。",
+            "习": "东阳千古望族，源出姬姓，春秋晋大夫习氏之后，气宇轩昂，底蕴深厚。"
         };
 
-        const starNames = [
-            { name: "天枢盘", bit: 1 },
-            { name: "天璇盘", bit: 2 },
-            { name: "天玑盘", bit: 4 },
-            { name: "天权盘", bit: 8 },
-            { name: "玉衡盘", bit: 16 },
-            { name: "开阳盘", bit: 32 },
-            { name: "摇光盘", bit: 64 }
+        const baguaNames = [
+            { name: "乾卦盘", bit: 1 },
+            { name: "兑卦盘", bit: 2 },
+            { name: "离卦盘", bit: 4 },
+            { name: "震卦盘", bit: 8 },
+            { name: "巽卦盘", bit: 16 },
+            { name: "坎卦盘", bit: 32 },
+            { name: "艮卦盘", bit: 64 },
+            { name: "坤卦盘", bit: 128 }
         ];
 
         let currentStep = 0;
@@ -497,7 +561,7 @@
         }
 
         function updateTracker() {
-            for (let i = 0; i < 7; i++) {
+            for (let i = 0; i < 8; i++) {
                 const dot = document.getElementById(`dot-${i}`);
                 dot.classList.remove('active', 'done');
                 if (i < currentStep) {
@@ -515,24 +579,25 @@
             document.getElementById('card-start').classList.remove('active');
             document.getElementById('card-result').classList.remove('active');
             document.getElementById('card-quiz').classList.add('active');
-            renderCurrentStarCard();
+            renderCurrentBaguaCard();
         }
 
-        function renderCurrentStarCard() {
+        function renderCurrentBaguaCard() {
             updateTracker();
-            const star = starNames[currentStep];
+            const gua = baguaNames[currentStep];
             document.getElementById('quiz-title').innerHTML = 
-                `第 <span class="highlight">${currentStep + 1}/7</span> 星【<span class="highlight">${star.name}</span>】：盘中是否有您的姓氏？`;
+                `第 <span class="highlight">${currentStep + 1}/8</span> 阵【<span class="highlight">${gua.name}</span>】：盘中是否有您的姓氏？`;
 
             const grid = document.getElementById('surname-grid');
             let currentCards = [];
 
-            for (let code = 1; code <= 127; code++) {
-                if ((code & star.bit) !== 0) {
-                    currentCards.push(surnameList[code]);
+            for (let code = 1; code < finalSurnames.length; code++) {
+                if ((code & gua.bit) !== 0) {
+                    currentCards.push(finalSurnames[code]);
                 }
             }
 
+            // 随机洗牌（打乱顺序增加神秘感，绝不影响二进制求和）
             for (let i = currentCards.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
@@ -546,19 +611,19 @@
         function makeChoice(isPresent) {
             playSound(isPresent ? 659.25 : 493.88, 0.18);
             if (isPresent) {
-                totalScore += starNames[currentStep].bit;
+                totalScore += baguaNames[currentStep].bit;
             }
             currentStep++;
 
-            if (currentStep < 7) {
-                renderCurrentStarCard();
+            if (currentStep < 8) {
+                renderCurrentBaguaCard();
             } else {
                 revealResult();
             }
         }
 
         function revealResult() {
-            for (let i = 0; i < 7; i++) {
+            for (let i = 0; i < 8; i++) {
                 const dot = document.getElementById(`dot-${i}`);
                 dot.classList.remove('active');
                 dot.classList.add('done');
@@ -582,17 +647,17 @@
             document.getElementById('card-quiz').classList.remove('active');
             document.getElementById('card-result').classList.add('active');
 
-            if (totalScore >= 1 && totalScore <= 127) {
-                const foundSurname = surnameList[totalScore];
+            if (totalScore >= 1 && totalScore < finalSurnames.length) {
+                const foundSurname = finalSurnames[totalScore];
                 document.getElementById('res-surname').textContent = foundSurname;
-                document.getElementById('res-code').textContent = `北斗星象 · 第 ${totalScore} 宫`;
+                document.getElementById('res-code').textContent = `天机八卦 · 第 ${totalScore} 宫`;
                 document.getElementById('res-desc').innerHTML = surnameNotes[foundSurname] || 
                     `【<span class="highlight">${foundSurname}</span>】氏源远流长，名载《百家姓》，宗族枝繁叶茂，自有不凡气象。`;
             } else {
                 document.getElementById('res-surname').textContent = "隐姓";
-                document.getElementById('res-code').textContent = "星象之外 · 世外高人";
+                document.getElementById('res-code').textContent = "八卦之外 · 世外高人";
                 document.getElementById('res-desc').innerHTML = 
-                    `七星皆未点亮，看来您的贵姓属于更为罕见的稀世大姓，或刚才看漏了某一颗星辰，不妨再试一次！`;
+                    `八卦皆未点亮，看来您的贵姓属于更为罕见的稀世大姓，或刚才看漏了某一卦象，不妨再试一次！`;
             }
         }
 
