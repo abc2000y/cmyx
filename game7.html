@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>北斗七星·百家姓秘卜</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0e;
+            --card-bg: rgba(22, 22, 30, 0.95);
+            --gold-main: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-btn: linear-gradient(180deg, #d49400 0%, #aa7000 100%);
+            --text-color: #e0e0e0;
+            --border-gold: rgba(212, 175, 55, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px 18px 12px;
+            position: relative;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 悬浮返回主页按钮 */
+        .back-btn {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 999;
+            padding: 6px 12px;
+            background: rgba(22, 22, 30, 0.88);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            border-radius: 20px;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-decoration: none;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        /* 罗盘背景 */
+        .bg-compass {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85vw;
+            height: 85vw;
+            max-width: 420px;
+            max-height: 420px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            pointer-events: none;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-compass::before {
+            content: '';
+            width: 75%;
+            height: 75%;
+            border-radius: 50%;
+            border: 1px dashed rgba(212, 175, 55, 0.18);
+        }
+
+        /* 顶部标题区 */
+        .header {
+            z-index: 1;
+            text-align: center;
+            margin-top: 26px;
+        }
+
+        h1 {
+            color: var(--gold-main);
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
+
+        .subtitle {
+            font-size: 0.68rem;
+            color: rgba(212, 175, 55, 0.6);
+            letter-spacing: 2px;
+        }
+
+        /* 中心纯净旋转太极图样式 */
+        .taiji-wrap {
+            z-index: 2;
+            position: relative;
+            width: 52px;
+            height: 52px;
+            margin: 6px auto 2px;
+        }
+
+        .taiji-svg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 16px rgba(212, 175, 55, 0.35);
+            animation: rotateTaiji 25s linear infinite;
+        }
+
+        @keyframes rotateTaiji {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 北斗七星进度指示 */
+        .star-tracker {
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 8px auto 6px;
+            flex-wrap: wrap;
+        }
+
+        .star-dot {
+            padding: 4px 9px;
+            font-size: 0.85rem;
+            border-radius: 12px;
+            background: rgba(22, 22, 30, 0.85);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            color: rgba(255, 255, 255, 0.45);
+            transition: all 0.25s;
+        }
+
+        .star-dot.active {
+            border-color: var(--gold-main);
+            color: var(--gold-light);
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+            font-weight: bold;
+        }
+
+        .star-dot.done {
+            border-color: rgba(212, 175, 55, 0.5);
+            color: var(--gold-main);
+        }
+
+        /* 主容器 */
+        .container {
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 4px 0;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 15px 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
+            text-align: center;
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .step-card.active {
+            display: block;
+            animation: fadeIn 0.28s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .guide-box {
+            background: rgba(10, 10, 14, 0.65);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            line-height: 1.55;
+            color: #fff;
+            text-align: left;
+        }
+
+        .highlight {
+            color: var(--gold-main);
+            font-weight: bold;
+        }
+
+        /* 8x8 百家姓星盘矩阵（字体放大一号） */
+        .surname-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            background: rgba(10, 10, 14, 0.85);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 10px 6px;
+            margin: 6px 0 12px 0;
+        }
+
+        .surname-cell {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            border-radius: 6px;
+            padding: 7px 0;
+            font-size: 1.15rem; /* 字号放大一号 */
+            font-weight:normal;
+            color: var(--gold-light);
+            text-align: center;
+            text-shadow: 0 0 6px rgba(212, 175, 55, 0.25);
+        }
+
+        /* 选项按钮组 */
+        .choice-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 13px 0;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 22px;
+            color: var(--gold-light);
+            font-size: 1.05rem;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .choice-btn.yes-btn {
+            background: var(--gold-btn);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 12px rgba(212, 148, 0, 0.35);
+        }
+
+        .choice-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* 揭晓大印结果页 */
+        .seal-orb {
+            width: 112px;
+            height: 112px;
+            margin: 10px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(212, 175, 55, 0.38), rgba(15, 15, 22, 0.96) 72%);
+            border: 2px solid var(--gold-main);
+            box-shadow: 0 0 32px rgba(212, 175, 55, 0.5), inset 0 0 18px rgba(212, 175, 55, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: sealPulse 2.4s infinite alternate;
+        }
+
+        @keyframes sealPulse {
+            from { transform: scale(0.96); box-shadow: 0 0 22px rgba(212, 175, 55, 0.35); }
+            to { transform: scale(1.04); box-shadow: 0 0 40px rgba(212, 175, 55, 0.7); }
+        }
+
+        .result-surname {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--gold-light);
+            text-shadow: 0 0 14px rgba(212, 175, 55, 0.7);
+            line-height: 1.1;
+        }
+
+        .result-code {
+            font-size: 0.75rem;
+            color: var(--gold-main);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        .result-desc {
+            font-size: 0.92rem;
+            color: rgba(255, 255, 255, 0.88);
+            margin: 10px 0 12px 0;
+            line-height: 1.55;
+            background: rgba(10, 10, 14, 0.75);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            text-align: left;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: var(--gold-btn);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(212, 148, 0, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .footer-text {
+            z-index: 1;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">◀ 返回十阵</a>
+
+    <div class="bg-compass"></div>
+
+    <div class="header">
+        <h1>北斗七星 · 百家姓秘卜</h1>
+        <div class="subtitle">SEVEN STARS SURNAME DIVINATION</div>
+    </div>
+
+    <!-- 纯净旋转太极徽章 -->
+    <div class="taiji-wrap">
+        <svg class="taiji-svg" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="50" fill="#111115"/>
+            <path d="M50 0 A 50 50 0 0 1 50 100 A 25 25 0 0 1 50 50 A 25 25 0 0 0 50 0 Z" fill="#d4af37"/>
+            <circle cx="50" cy="25" r="6" fill="#d4af37"/>
+            <circle cx="50" cy="75" r="6" fill="#111115"/>
+        </svg>
+    </div>
+
+    <!-- 北斗七星进度指示 -->
+
+    <div class="star-tracker" id="star-tracker">
+        <span class="star-dot" id="dot-0">天枢</span>
+        <span class="star-dot" id="dot-1">天璇</span>
+        <span class="star-dot" id="dot-2">天玑</span>
+        <span class="star-dot" id="dot-3">天权</span>
+        <span class="star-dot" id="dot-4">玉衡</span>
+        <span class="star-dot" id="dot-5">开阳</span>
+        <span class="star-dot" id="dot-6">摇光</span>
+    </div>
+
+    <div class="container">
+        
+        <!-- 开始指引页 -->
+        <div class="step-card active" id="card-start">
+            <div class="guide-box">
+                📜 <span class="highlight">七星测姓秘法：</span><br>
+                1. 请在心中默想您的<span class="highlight">贵姓</span>（涵盖百家姓前127大姓，无需说出）。<br>
+                2. 接下来将依次亮起 <span class="highlight">北斗七星盘</span>（天枢至摇光）。<br>
+                3. 每次仔细扫视星盘，告知您的姓氏<span class="highlight">“有我的姓”</span>或<span class="highlight">“没有”</span>。<br>    📜  七星归位，立见真章！
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">点亮北斗七星 🧭</button>
+        </div>
+
+        <!-- 7轮星盘排查页 -->
+        <div class="step-card" id="card-quiz">
+            <div class="guide-box" id="quiz-title" style="padding: 8px 12px; margin-bottom: 6px;">
+                第 1 星【天枢盘】：星盘中是否有您的姓氏？
+            </div>
+
+            <!-- 64姓 8x8 宫格（字放大一号） -->
+            <div class="surname-grid" id="surname-grid"></div>
+
+            <div class="choice-group">
+                <button class="choice-btn yes-btn" onclick="makeChoice(true)">✨ 有我的姓</button>
+                <button class="choice-btn" onclick="makeChoice(false)">没有 (跳过)</button>
+            </div>
+        </div>
+
+        <!-- 结果揭晓页 -->
+        <div class="step-card" id="card-result">
+            <div style="font-size: 1.15rem; color: var(--gold-light); font-weight: bold;">
+                ☯️ 七星连珠 · 姓氏已现
+            </div>
+            <div style="font-size: 0.88rem; color: rgba(255,255,255,0.7); margin-top: 2px;">
+                北斗数理推演直指，您心中的贵姓正是：
+            </div>
+
+            <div class="seal-orb">
+                <div class="result-surname" id="res-surname">卢</div>
+                <div class="result-code" id="res-code">星象数理 · 第 99 宫</div>
+            </div>
+
+            <div class="result-desc" id="res-desc">
+                范阳望族，源出姜姓，齐文公子高之后，封于卢，因以为氏。
+            </div>
+
+            <button class="btn btn-primary" onclick="resetGame()">再测他人贵姓 🔄</button>
+        </div>
+
+    </div>
+
+    <div class="footer-text">古代二进制数理 · 乾坤奇观</div>
+
+    <script>
+        const surnameList = [
+            "", 
+            "王", "李", "张", "刘", "陈", "杨", "黄", "赵", "吴", "周", // 1-10
+            "徐", "孙", "马", "朱", "胡", "郭", "何", "林", "高", "罗", // 11-20
+            "郑", "梁", "谢", "宋", "唐", "许", "韩", "冯", "邓", "曹", // 21-30
+            "彭", "曾", "肖", "田", "董", "袁", "潘", "于", "蒋", "蔡", // 31-40
+            "余", "杜", "叶", "程", "苏", "魏", "吕", "丁", "任", "沈", // 41-50
+            "姚", "姜", "崔", "钟", "谭", "陆", "汪", "范", "金", "石", // 51-60
+            "廖", "贾", "夏", "韦", "付", "方", "白", "邹", "孟", "熊", // 61-70
+            "秦", "邱", "江", "尹", "薛", "闫", "段", "雷", "侯", "龙", // 71-80
+            "史", "陶", "黎", "贺", "顾", "毛", "郝", "龚", "邵", "万", // 81-90
+            "钱", "严", "覃", "武", "戴", "莫", "孔", "向", "卢", "汤", // 91-100 (99为卢)
+            "温", "康", "施", "文", "牛", "樊", "葛", "邢", "安", "齐", // 101-110
+            "易", "乔", "伍", "庞", "颜", "倪", "庄", "聂", "章", "鲁", // 111-120
+            "岳", "翟", "殷", "詹", "申", "欧", "耿"                      // 121-127
+        ];
+
+        const surnameNotes = {
+            "王": "太原琅琊望族，名门之后，气度恢弘，自古英才辈出。",
+            "李": "陇西赵郡名门，盛唐国姓，文武兼修，底蕴深厚。",
+            "张": "清河范阳世家，挥毫落纸如云烟，才思敏捷，格局远大。",
+            "刘": "彭城沛县大族，汉室遗风，重情重义，领袖群伦。",
+            "陈": "颍川名门望族，德星聚辉，温润谦和而内藏锋芒。",
+            "杨": "弘农清白传家，四知遗风，刚正不阿，光明磊落。",
+            "黄": "江夏千古名门，春申遗风，厚积薄发，福泽绵长。",
+            "赵": "天水名门大族，百家姓之首，气宇轩昂，自有担当。",
+            "吴": "延陵季子高风，谦让有礼，灵秀通达，人缘极佳。",
+            "周": "汝南名门世家，礼乐传家，思虑周全，稳重可靠。",
+            "卢": "范阳千古望族，源出姜姓，书香门第，才俊辈出。"
+        };
+
+        const starNames = [
+            { name: "天枢盘", bit: 1 },
+            { name: "天璇盘", bit: 2 },
+            { name: "天玑盘", bit: 4 },
+            { name: "天权盘", bit: 8 },
+            { name: "玉衡盘", bit: 16 },
+            { name: "开阳盘", bit: 32 },
+            { name: "摇光盘", bit: 64 }
+        ];
+
+        let currentStep = 0;
+        let totalScore = 0;
+        let audioCtx = null;
+
+        function playSound(freq, duration) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.28, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function updateTracker() {
+            for (let i = 0; i < 7; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                dot.classList.remove('active', 'done');
+                if (i < currentStep) {
+                    dot.classList.add('done');
+                } else if (i === currentStep && document.getElementById('card-quiz').classList.contains('active')) {
+                    dot.classList.add('active');
+                }
+            }
+        }
+
+        function startGame() {
+            playSound(587.33, 0.2);
+            currentStep = 0;
+            totalScore = 0;
+            document.getElementById('card-start').classList.remove('active');
+            document.getElementById('card-result').classList.remove('active');
+            document.getElementById('card-quiz').classList.add('active');
+            renderCurrentStarCard();
+        }
+
+        function renderCurrentStarCard() {
+            updateTracker();
+            const star = starNames[currentStep];
+            document.getElementById('quiz-title').innerHTML = 
+                `第 <span class="highlight">${currentStep + 1}/7</span> 星【<span class="highlight">${star.name}</span>】：盘中是否有您的姓氏？`;
+
+            const grid = document.getElementById('surname-grid');
+            let currentCards = [];
+
+            for (let code = 1; code <= 127; code++) {
+                if ((code & star.bit) !== 0) {
+                    currentCards.push(surnameList[code]);
+                }
+            }
+
+            for (let i = currentCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+            }
+
+            grid.innerHTML = currentCards
+                .map(s => `<div class="surname-cell">${s}</div>`)
+                .join('');
+        }
+
+        function makeChoice(isPresent) {
+            playSound(isPresent ? 659.25 : 493.88, 0.18);
+            if (isPresent) {
+                totalScore += starNames[currentStep].bit;
+            }
+            currentStep++;
+
+            if (currentStep < 7) {
+                renderCurrentStarCard();
+            } else {
+                revealResult();
+            }
+        }
+
+        function revealResult() {
+            for (let i = 0; i < 7; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                dot.classList.remove('active');
+                dot.classList.add('done');
+            }
+
+            const audio = document.getElementById('magic-audio');
+            if (audio) {
+                try {
+                    audio.currentTime = 0;
+                    const playPromise = audio.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => playSound(329.63, 1.2));
+                    }
+                } catch (e) {
+                    playSound(329.63, 1.2);
+                }
+            } else {
+                playSound(329.63, 1.2);
+            }
+
+            document.getElementById('card-quiz').classList.remove('active');
+            document.getElementById('card-result').classList.add('active');
+
+            if (totalScore >= 1 && totalScore <= 127) {
+                const foundSurname = surnameList[totalScore];
+                document.getElementById('res-surname').textContent = foundSurname;
+                document.getElementById('res-code').textContent = `北斗星象 · 第 ${totalScore} 宫`;
+                document.getElementById('res-desc').innerHTML = surnameNotes[foundSurname] || 
+                    `【<span class="highlight">${foundSurname}</span>】氏源远流长，名载《百家姓》，宗族枝繁叶茂，自有不凡气象。`;
+            } else {
+                document.getElementById('res-surname').textContent = "隐姓";
+                document.getElementById('res-code').textContent = "星象之外 · 世外高人";
+                document.getElementById('res-desc').innerHTML = 
+                    `七星皆未点亮，看来您的贵姓属于更为罕见的稀世大姓，或刚才看漏了某一颗星辰，不妨再试一次！`;
+            }
+        }
+
+        function resetGame() {
+            playSound(523.25, 0.2);
+            currentStep = 0;
+            totalScore = 0;
+            document.getElementById('card-result').classList.remove('active');
+            document.getElementById('card-start').classList.add('active');
+            updateTracker();
+        }
+    </script>
+    <audio id="magic-audio" src="sound/magic.mp3" preload="auto"></audio>
+</body>
+</html>
