@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>古法数理·生肖秘卜</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0e;
+            --card-bg: rgba(22, 22, 30, 0.95);
+            --gold-main: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-btn: linear-gradient(180deg, #d49400 0%, #aa7000 100%);
+            --text-color: #e0e0e0;
+            --border-gold: rgba(212, 175, 55, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px 18px 12px;
+            position: relative;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 悬浮返回主页按钮 */
+        .back-btn {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 999;
+            padding: 6px 12px;
+            background: rgba(22, 22, 30, 0.88);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            border-radius: 20px;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-decoration: none;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        /* 罗盘背景 */
+        .bg-compass {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85vw;
+            height: 85vw;
+            max-width: 420px;
+            max-height: 420px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            pointer-events: none;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-compass::before {
+            content: '';
+            width: 75%;
+            height: 75%;
+            border-radius: 50%;
+            border: 1px dashed rgba(212, 175, 55, 0.18);
+        }
+
+        /* 顶部标题区 */
+        .header {
+            z-index: 1;
+            text-align: center;
+            margin-top: 26px;
+        }
+
+        h1 {
+            color: var(--gold-main);
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
+
+        .subtitle {
+            font-size: 0.68rem;
+            color: rgba(212, 175, 55, 0.6);
+            letter-spacing: 2px;
+        }
+
+        /* 十二生肖环形罗盘容器 */
+        .zodiac-wheel-container {
+            z-index: 1;
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 8px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 透明生肖罗盘图 */
+        .zodiac-wheel-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+            filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.25));
+        }
+
+        /* 中心太极 */
+        .taiji-wrap {
+            position: absolute;
+            width: 66px;
+            height: 66px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .taiji-svg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 18px rgba(212, 175, 55, 0.35);
+            animation: rotate 25s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 主容器 */
+        .container {
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 4px 0;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 16px 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
+            text-align: center;
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .step-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .guide-box {
+            background: rgba(10, 10, 14, 0.65);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: #fff;
+            text-align: left;
+        }
+
+        .highlight {
+            color: var(--gold-main);
+            font-weight: bold;
+        }
+
+        /* 左右两排生肖展示区 */
+        .group-display {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(10, 10, 14, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 12px;
+            padding: 12px 10px;
+            margin: 10px 0 14px 0;
+            gap: 12px;
+        }
+
+        .sub-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .sub-title {
+            font-size: 0.85rem;
+            color: rgba(212, 175, 55, 0.75);
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .z-badge {
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.95rem;
+            color: #fff;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* 选项按钮组 */
+        .choice-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 13px 0;
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 20px;
+            color: var(--gold-light);
+            font-size: 1.02rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .choice-btn:active {
+            background: rgba(212, 175, 55, 0.28);
+            transform: scale(0.97);
+        }
+
+        /* 水晶球结果页 */
+        .result-orb {
+            width: 120px;
+            height: 120px;
+            margin: 10px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(212, 175, 55, 0.35), rgba(15, 15, 22, 0.95) 70%);
+            border: 2px solid var(--gold-main);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.45), inset 0 0 20px rgba(212, 175, 55, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: orbPulse 2.5s infinite alternate;
+        }
+
+        @keyframes orbPulse {
+            from { transform: scale(0.96); box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+            to { transform: scale(1.04); box-shadow: 0 0 38px rgba(212, 175, 55, 0.65); }
+        }
+
+        .result-icon {
+            font-size: 2.8rem;
+            line-height: 1;
+        }
+
+        .result-name {
+            font-size: 1.1rem;
+            color: var(--gold-main);
+            font-weight: bold;
+            margin-top: 3px;
+        }
+
+        .result-desc {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 10px 0 14px 0;
+            line-height: 1.5;
+            background: rgba(10, 10, 14, 0.7);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: left;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px 0;
+            font-size: 1.15rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: var(--gold-btn);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(212, 148, 0, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .footer-text {
+            z-index: 1;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">◀ 返回十阵</a>
+
+    <div class="bg-compass"></div>
+
+    <div class="header">
+        <h1>古法数理 · 生肖秘卜</h1>
+        <div class="subtitle">ZODIAC MIND READING</div>
+    </div>
+
+    <!-- 生肖罗盘：透明图 + 中心太极 -->
+    <div class="zodiac-wheel-container">
+        <img class="zodiac-wheel-img" src="images/zodiac-wheel.png" alt="十二生肖罗盘">
+
+        <div class="taiji-wrap">
+            <svg class="taiji-svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="50" fill="#111115"/>
+                <path d="M50 0 A 50 50 0 0 1 50 100 A 25 25 0 0 1 50 50 A 25 25 0 0 0 50 0 Z" fill="#d4af37"/>
+                <circle cx="50" cy="25" r="7" fill="#d4af37"/>
+                <circle cx="50" cy="75" r="8" fill="#111115" stroke="#f3e5ab" stroke-width="1.5"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 开始指引页 -->
+        <div class="step-card active" id="card-start">
+            <div class="guide-box">
+                📜 <b>秘术规则</b>：<br>
+                1. 请在心中默想任意一个<span class="highlight">生肖</span>（无需告诉我）。<br>
+                2. 接下来将连续展示 <span class="highlight">3 组生肖卡片</span>。<br>
+                3. 每组均整齐展示 8 个生肖（左4右4），若不在其中则选“无”。三步之后，天机自现！
+            </div>
+            <button class="btn btn-primary" onclick="startQuiz()">开启灵犀读心 🧭</button>
+        </div>
+
+        <!-- 3轮排查页 -->
+        <div class="step-card" id="card-quiz">
+            <div class="guide-box" id="quiz-title">
+                第 1 组：请检查你的生肖在左边、右边还是都不在？
+            </div>
+
+            <div class="group-display">
+                <div class="sub-column">
+                    <div class="sub-title">【 左 排 】</div>
+                    <div id="left-list"></div>
+                </div>
+                <div class="sub-column">
+                    <div class="sub-title">【 右 排 】</div>
+                    <div id="right-list"></div>
+                </div>
+            </div>
+
+            <div class="choice-group">
+                <button class="choice-btn" onclick="makeChoice('左')">在左边</button>
+                <button class="choice-btn" onclick="makeChoice('无')">都不在</button>
+                <button class="choice-btn" onclick="makeChoice('右')">在右边</button>
+            </div>
+        </div>
+
+        <!-- 结果揭晓页 -->
+        <div class="step-card" id="card-result">
+            <div style="font-size: 1.25rem; color: var(--gold-light); font-weight: bold;">
+                ☯️ 三才归位 · 天机已显
+            </div>
+            <div style="font-size: 0.92rem; color: rgba(255,255,255,0.7); margin-top: 4px;">
+                灵犀感应直指，你心中默想的生肖正是：
+            </div>
+
+            <div class="result-orb">
+                <div class="result-icon" id="res-icon">🐅</div>
+                <div class="result-name" id="res-name">寅虎</div>
+            </div>
+
+            <div class="result-desc" id="res-desc">
+                威严勇猛，气场非凡。
+            </div>
+
+            <button class="btn btn-primary" onclick="resetGame()">再次测算生肖 🔄</button>
+        </div>
+
+    </div>
+
+    <div class="footer-text">古代数学智慧 · 乾坤奇观</div>
+
+    <script>
+        const zodiacDatabase = [
+            { name: "子鼠", icon: "🐀", pattern: ["左", "左", "无"], desc: "灵动机智，应变无双，擅长社交与理财，福气绵长。有时谨慎多疑，容易在细节上斤斤计较。" },
+            { name: "丑牛", icon: "🐂", pattern: ["左", "右", "无"], desc: "坚韧踏实，稳重可靠，责任感强，厚德载物。性格固执，不善变通，沟通时较木讷。" },
+            { name: "寅虎", icon: "🐅", pattern: ["左", "无", "左"], desc: "威严勇猛，行动力强，领袖群伦，气场非凡。易冲动、好胜，需注意情绪与协调性。" },
+            { name: "卯兔", icon: "🐇", pattern: ["左", "无", "右"], desc: "敏捷温和，福寿长，善解人意，擅长调和人际关系。有时太敏感、缺乏安全感，容易依赖他人。" },
+            { name: "辰龙", icon: "🐉", pattern: ["右", "左", "无"], desc: "高洁自信，有魅力，目标远大，具创造力，祥瑞庇佑。有时好高骛远、要求高，需脚踏实地。" },
+            { name: "巳蛇", icon: "🐍", pattern: ["右", "右", "无"], desc: "思维缜密、直觉敏锐，沉着冷静。灵动神秘，大智若愚。多疑、心防重，需学习信任与表达。" },
+            { name: "午马", icon: "🐎", pattern: ["右", "无", "左"], desc: "热情开朗、自由奔放，适应力强。志在千里，前程似锦。缺乏耐心，不喜束缚，情绪易波动。" },
+            { name: "未羊", icon: "🐐", pattern: ["右", "无", "右"], desc: "温婉善良，共情力强，追求和谐。艺术灵齐，福泽深厚。优柔寡断、依赖性强，需增强决断力。" },
+            { name: "申猴", icon: "🐒", pattern: ["无", "左", "左"], desc: "聪明机智、好奇心强，心灵手巧，社交能力佳，运筹帷幄。三心二意、耐心不足，需培养专注力。" },
+            { name: "酉鸡", icon: "🐓", pattern: ["无", "左", "右"], desc: "守时坚毅，光明磊落，追求完美，做事有条理，组织能力强。挑剔、标准高，表达方式需更圆融。" },
+            { name: "戌狗", icon: "🐕", pattern: ["无", "右", "左"], desc: "忠诚可靠、正义感强，值得信赖，为人正直，守义安邦，挚诚可靠。直率易得罪人，情绪起伏大。" },
+            { name: "亥猪", icon: "🐖", pattern: ["无", "右", "右"], desc: "富贵安康，真诚善良，乐观大度，人缘好。福气满。易轻信，缺少危机感，需增强进取心。" }
+ ];
+
+        function getGroupDisplay(groupIndex) {
+            let leftItems = [];
+            let rightItems = [];
+            zodiacDatabase.forEach(z => {
+                if (z.pattern[groupIndex] === "左") {
+                    leftItems.push(`${z.icon} ${z.name}`);
+                } else if (z.pattern[groupIndex] === "右") {
+                    rightItems.push(`${z.icon} ${z.name}`);
+                }
+            });
+            return { left: leftItems, right: rightItems };
+        }
+
+        let currentGroupIndex = 0;
+        let userChoices = [];
+        let audioCtx = null;
+
+        function playSound(freq, duration) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function startQuiz() {
+            playSound(587.33, 0.2);
+            currentGroupIndex = 0;
+            userChoices = [];
+            showCurrentGroup();
+            document.getElementById('card-start').classList.remove('active');
+            document.getElementById('card-quiz').classList.add('active');
+        }
+
+        function showCurrentGroup() {
+            document.getElementById('quiz-title').innerHTML = `第 <span class="highlight">${currentGroupIndex + 1}</span> 组：请检查你的生肖在左边、右边还是都不在？`;
+            
+            const display = getGroupDisplay(currentGroupIndex);
+            document.getElementById('left-list').innerHTML = display.left.map(n => `<div class="z-badge">${n}</div>`).join('');
+            document.getElementById('right-list').innerHTML = display.right.map(n => `<div class="z-badge">${n}</div>`).join('');
+        }
+
+        function makeChoice(choice) {
+            playSound(523.25, 0.2);
+            userChoices.push(choice);
+            currentGroupIndex++;
+
+            if (currentGroupIndex < 3) {
+                showCurrentGroup();
+            } else {
+                revealResult();
+            }
+        }
+
+        function revealResult() {
+            const audio = document.getElementById('magic-audio');
+            if (audio) {
+                try {
+                    audio.currentTime = 0;
+                    const playPromise = audio.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => playSound(329.63, 1.2));
+                    }
+                } catch (e) {
+                    playSound(329.63, 1.2);
+                }
+            } else {
+                playSound(329.63, 1.2);
+            }
+
+            let matchedZodiac = zodiacDatabase[2];
+            
+            for (let i = 0; i < zodiacDatabase.length; i++) {
+                let z = zodiacDatabase[i];
+                if (z.pattern[0] === userChoices[0] && z.pattern[1] === userChoices[1] && z.pattern[2] === userChoices[2]) {
+                    matchedZodiac = z;
+                    break;
+                }
+            }
+
+            document.getElementById('res-icon').textContent = matchedZodiac.icon;
+            document.getElementById('res-name').textContent = matchedZodiac.name;
+            document.getElementById('res-desc').textContent = matchedZodiac.desc;
+
+            document.getElementById('card-quiz').classList.remove('active');
+            document.getElementById('card-result').classList.add('active');
+        }
+
+        function resetGame() {
+            playSound(523.25, 0.2);
+            currentGroupIndex = 0;
+            userChoices = [];
+            document.getElementById('card-result').classList.remove('active');
+            document.getElementById('card-start').classList.add('active');
+        }
+    </script>
+    <audio id="magic-audio" src="sound/magic.mp3" preload="auto"></audio>
+</body>
+</html>
