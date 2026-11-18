@@ -115,7 +115,7 @@
             display: block;
         }
 
-        /* 背牌固定在最后一张位置的微光特效 */
+        /* 背牌固定在最后一位的微光特效 */
         .card-img-box.hidden-card {
             border: 2px dashed var(--gold-light);
             animation: pulseCard 2s infinite alternate;
@@ -206,7 +206,7 @@
             <button class="btn" onclick="goToStep2()">我记好了，收回牌阵 ➔</button>
         </div>
 
-        <!-- 阶段二：显示背面叠起来的牌堆 p.jpg-->
+        <!-- 阶段二：显示背面叠起来的牌堆 p.jpg -->
         <div id="step-2" class="hidden">
             <div class="instruction" style="text-align: center;">
                 ✨ <b>第二步：心灵感应与控制</b><br>
@@ -239,10 +239,6 @@
         const IMAGE_FOLDER = 'cards/';
         const IMAGE_EXT = '.jpg'; // 如果你的图片是png格式，请改为 '.png'
 
-        function getCardFileName(num) {
-            return IMAGE_FOLDER + String(num).padStart(2, '0') + IMAGE_EXT;
-        }
-
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -254,43 +250,52 @@
         let currentSetB = [];
 
         function generateMagicCards() {
-            // 严格分类：J,Q,K 对应点数 11, 12, 13；数字对应点数 2 ~ 10 (或 1~10)
-            const faceRanks = [11, 12, 13]; // J, Q, K
-            const numberRanks = [2, 3, 4, 5, 6, 7, 8, 9, 10]; // 数字牌
+            const similarSuitMap = { 0: 2, 2: 0, 1: 3, 3: 1 };
+            let chosenCardsInfo = [];
 
-            let chosenRanks = [];
-            // 50%概率全出字母JQK，50%概率全出数字牌
+            // 50% 概率出纯字母局(J,Q,K)，50% 概率出纯数字局(2~10)
             if (Math.random() < 0.5) {
-                // 字母牌只有3张(J,Q,K)，我们可以允许重复花色，或者随机组合
-                // 为了凑够6张，从faceRanks中随机挑选6个（可重复点数但花色不同）
-                chosenRanks = [];
-                for (let i = 0; i < 6; i++) {
-                    chosenRanks.push(faceRanks[Math.floor(Math.random() * faceRanks.length)]);
-                }
+                // --- 纯字母局 (J, Q, K 共 12张牌) ---
+                // J: 11, Q: 12, K: 13. 花色组: 0(黑), 1(红), 2(梅), 3(方)
+                let allFaceCards = [];
+                [11, 12, 13].forEach(rank => {
+                    for (let suit = 0; suit < 4; suit++) {
+                        allFaceCards.push({ suit: suit, rank: rank });
+                    }
+                });
+                // 无重复洗牌，取前 6 张
+                shuffle(allFaceCards);
+                chosenCardsInfo = allFaceCards.slice(0, 6);
+
             } else {
-                // 从数字牌中随机抽取6个不重复的点数
-                let shuffledNums = [...numberRanks];
-                shuffle(shuffledNums);
-                chosenRanks = shuffledNums.slice(0, 6);
+                // --- 纯数字局 (2~10 共 36张牌) ---
+                let allNumberCards = [];
+                for (let rank = 2; rank <= 10; rank++) {
+                    for (let suit = 0; suit < 4; suit++) {
+                        allNumberCards.push({ suit: suit, rank: rank });
+                    }
+                }
+                // 无重复洗牌，取前 6 张
+                shuffle(allNumberCards);
+                chosenCardsInfo = allNumberCards.slice(0, 6);
             }
 
             const setA = [];
             const setB = [];
-            const similarSuitMap = { 0: 2, 2: 0, 1: 3, 3: 1 };
 
-            chosenRanks.forEach(rank => {
-                const suitGroup = Math.floor(Math.random() * 4);
-                let suitAOffset = suitGroup;
-                let suitBOffset = similarSuitMap[suitGroup];
+            chosenCardsInfo.forEach(item => {
+                const suitA = item.suit;
+                const suitB = similarSuitMap[suitA];
+                const rank = item.rank;
 
-                const cardNumA = suitAOffset * 13 + rank;
-                const cardNumB = suitBOffset * 13 + rank;
+                const cardNumA = suitA * 13 + rank;
+                const cardNumB = suitB * 13 + rank;
 
-                setA.push(getCardFileName(cardNumA));
-                setB.push(getCardFileName(cardNumB));
+                setA.push(IMAGE_FOLDER + String(cardNumA).padStart(2, '0') + IMAGE_EXT);
+                setB.push(IMAGE_FOLDER + String(cardNumB).padStart(2, '0') + IMAGE_EXT);
             });
 
-            // 打乱第二组顺序，只取5张相似明牌
+            // 打乱第二组相似牌顺序，只取5张
             shuffle(setB);
             const finalSetB = setB.slice(0, 5);
 
@@ -301,7 +306,7 @@
             const { setA, setB } = generateMagicCards();
             currentSetB = setB;
 
-            // 渲染第一步的6张原牌
+            // 渲染第一步的6张原牌（绝对无重复）
             document.getElementById('grid-6').innerHTML = setA.map(src => `
                 <div class="card-img-box">
                     <img src="${src}" alt="扑克牌" onerror="this.src='cards/01.jpg'">
@@ -315,7 +320,7 @@
         }
 
         function goToStep3() {
-            // 第三步：前5张为随机打乱的明牌，最后第6张固定为背牌 (p.jpg)
+            // 第三步：前5张为相似明牌，最后第6张固定为背牌 (p.jpg)
             let finalDisplayCards = [
                 ...currentSetB.map(src => ({ type: 'front', src: src })),
                 { type: 'back', src: 'cards/p.jpg' } // 固定在最后一位
