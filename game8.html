@@ -7,9 +7,9 @@
     <style>
         :root {
             --bg-color: #0b0b0e;
+            --card-bg: rgba(22, 22, 30, 0.95);
             --gold-main: #d4af37;
             --gold-light: #f3e5ab;
-            --card-bg: rgba(22, 22, 30, 0.95);
             --border-gold: rgba(212, 175, 55, 0.35);
         }
 
@@ -30,10 +30,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 14px;
-            text-align: center;
+            padding: 14px 12px 18px 12px;
+            position: relative;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
+        /* 悬浮返回主页按钮 */
         .back-btn {
             position: fixed;
             top: 12px;
@@ -47,53 +50,136 @@
             font-size: 0.85rem;
             font-weight: bold;
             text-decoration: none;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
         }
 
+        /* 罗盘背景 */
+        .bg-compass {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85vw;
+            height: 85vw;
+            max-width: 420px;
+            max-height: 420px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            pointer-events: none;
+            z-index: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-compass::before {
+            content: '';
+            width: 75%;
+            height: 75%;
+            border-radius: 50%;
+            border: 1px dashed rgba(212, 175, 55, 0.18);
+        }
+
+        /* 顶部标题区 */
         .header {
-            margin-top: 24px;
+            z-index: 1;
+            text-align: center;
+            margin-top: 26px;
         }
 
-        .header h1 {
+        h1 {
             color: var(--gold-main);
-            font-size: 1.55rem;
-            letter-spacing: 2px;
-            margin-bottom: 4px;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
         }
 
         .subtitle {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             color: rgba(212, 175, 55, 0.6);
             letter-spacing: 2px;
         }
 
-        .container {
+        /* 旋转太极徽章（完美纯净修复版） */
+        .taiji-wrap {
+            z-index: 2;
+            position: relative;
+            width: 48px;
+            height: 48px;
+            margin: 6px auto 4px;
+        }
+
+        .taiji-svg {
             width: 100%;
-            max-width: 440px;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 16px rgba(212, 175, 55, 0.35);
+            animation: rotateTaiji 25s linear infinite;
+        }
+
+        @keyframes rotateTaiji {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 主容器 */
+        .container {
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 4px 0;
+        }
+
+        .step-card {
             background: var(--card-bg);
             border: 1px solid var(--border-gold);
             border-radius: 16px;
-            padding: 18px 14px;
+            padding: 15px 14px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
+            text-align: center;
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .step-card.active {
+            display: block;
+            animation: fadeIn 0.28s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .instruction {
-            font-size: 0.96rem;
+            font-size: 1.02rem;
             line-height: 1.6;
-            margin-bottom: 16px;
-            color: #f3e5ab;
-            background: rgba(10, 10, 14, 0.75);
-            padding: 11px 12px;
+            margin-bottom: 14px;
+            color: #fff;
+            background: rgba(10, 10, 14, 0.65);
+            padding: 12px 14px;
             border-radius: 10px;
-            border: 1px solid rgba(212, 175, 55, 0.22);
+            border: 1px solid rgba(212, 175, 55, 0.2);
             text-align: left;
         }
 
-        /* 扑克图片 3列网格 */
+        .highlight {
+            color: var(--gold-main);
+            font-weight: bold;
+        }
+
+        /* 扑克图片统一网格与尺寸比例 */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .card-img-box {
@@ -101,7 +187,7 @@
             border: 2px solid var(--gold-main);
             border-radius: 8px;
             overflow: hidden;
-            aspect-ratio: 2.5 / 3.5;
+            aspect-ratio: 2.5 / 3.5; /* 标准扑克牌比例 */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             display: flex;
             align-items: center;
@@ -126,11 +212,11 @@
             to { box-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
         }
 
-        /* 第二步的牌堆叠影 */
+        /* 第二步的牌堆容器：完美匹配标准卡片尺寸（aspect-ratio）与立体厚度 */
         .deck-box {
-            width: 90px;
-            height: 126px;
-            margin: 15px auto;
+            width: 110px;
+            aspect-ratio: 2.5 / 3.5;
+            margin: 18px auto;
             position: relative;
             animation: floatDeck 2s ease-in-out infinite alternate;
         }
@@ -145,6 +231,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            background: #fff;
         }
 
         .deck-box img:nth-child(1) { transform: translate(-4px, -4px); opacity: 0.7; }
@@ -158,10 +245,10 @@
 
         .btn {
             width: 100%;
-            padding: 13px;
+            padding: 13px 0;
             background: linear-gradient(180deg, #d49400 0%, #aa7000 100%);
             color: #fff;
-            font-size: 1.08rem;
+            font-size: 1.1rem;
             font-weight: bold;
             border: none;
             border-radius: 25px;
@@ -178,11 +265,12 @@
             display: none !important;
         }
 
-        .footer {
-            font-size: 0.72rem;
+        .footer-text {
+            z-index: 1;
+            font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.3);
-            letter-spacing: 1px;
-            margin-top: 15px;
+            letter-spacing: 2px;
+            margin-top: 6px;
         }
     </style>
 </head>
@@ -190,54 +278,112 @@
 
     <a href="index.html" class="back-btn">◀ 返回十阵</a>
 
+    <div class="bg-compass"></div>
+
     <div class="header">
         <h1>卜克心灵 · 翻转天机</h1>
         <div class="subtitle">CARD REVERSAL MAGIC</div>
     </div>
 
+    <!-- 统一风格的旋转太极徽章（完美修复版） -->
+    <div class="taiji-wrap">
+        <svg class="taiji-svg" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="50" fill="#111115"/>
+            <!-- 太极阴阳双鱼：左金右黑，内部鱼眼颜色精准反转对应 -->
+            <path d="M50 0 A 50 50 0 0 1 50 100 A 25 25 0 0 1 50 50 A 25 25 0 0 0 50 0 Z" fill="#d4af37"/>
+            <circle cx="50" cy="25" r="5" fill="#d4af37"/>
+            <circle cx="50" cy="75" r="5" fill="#111115"/>
+        </svg>
+    </div>
+
     <div class="container">
         <!-- 阶段一：展示随机抽取的6张正面牌 -->
-        <div id="step-1">
+        <div class="step-card active" id="card-start">
             <div class="instruction">
                 🔮 <b>第一步：凝神记忆</b><br>
-                下方有 <b>6张扑克牌</b>。请在心中挑一项并<b>死死记住它</b>，千万不要说出来。记好了请点击下一步。
+                1. 下方有 <span class="highlight">6张扑克牌</span>。<br>
+                2. 请选一张并<span class="highlight">死死记住它</span>，千万不要说出来。<br>
+                3. 记好了请点击下方按钮。
             </div>
             <div class="cards-grid" id="grid-6"></div>
             <button class="btn" onclick="goToStep2()">我记好了，收回牌阵 ➔</button>
         </div>
 
-        <!-- 阶段二：显示背面叠起来的牌堆 p.jpg -->
-        <div id="step-2" class="hidden">
+        <!-- 阶段二：显示大小一致的背面叠起来牌堆 p.jpg -->
+        <div class="step-card" id="card-step2">
             <div class="instruction" style="text-align: center;">
                 ✨ <b>第二步：心灵感应与控制</b><br>
-                牌已收拢。魔术师正在凝神施法，将你心中所想的那张牌在牌堆中悄悄翻转……
+                请静气凝神，你心中所想的那张牌，<br>将<span class="highlight">会被神灵翻转……</span>
             </div>
 
+            <!-- 尺寸与前后牌完全一致的堆叠容器 -->
             <div class="deck-box">
                 <img src="cards/p.jpg" alt="牌背面">
                 <img src="cards/p.jpg" alt="牌背面">
                 <img src="cards/p.jpg" alt="牌背面">
             </div>
 
-            <button class="btn" onclick="goToStep3()" style="margin-top: 15px;">见证奇迹：牌面翻转 👁️</button>
+            <button class="btn" onclick="goToStep3()" style="margin-top: 10px;">见证奇迹：牌面翻转 👁️</button>
         </div>
 
         <!-- 阶段三：5张明牌 + 1张背牌固定在最后一位 -->
-        <div id="step-3" class="hidden">
+        <div class="step-card" id="card-step3">
             <div class="instruction">
                 🪄 <b>第三步：天机揭晓</b><br>
-                请看下方的 <b>6张牌</b>（前5张明牌，最后1张背牌）——你刚才心里想的那张牌，<b>已经被我隔空翻过来了！</b>
+                ——请看下方的 <b> 六张牌</b><br>
+		——你刚才记住的那张牌，<b>已被<span class="highlight">隔空翻过来了！</span></b>
             </div>
             <div class="cards-grid" id="grid-6-final"></div>
             <button class="btn" onclick="resetGame()">换一副牌再玩一次 🔄</button>
         </div>
     </div>
 
-    <div class="footer">高阶心理错觉演示</div>
+    <div class="footer-text">古代二进制数理 · 乾坤奇观</div>
+
+    <!-- 引入指定的音效文件 -->
+    <audio id="magic-audio" src="sound/magic.mp3" preload="auto"></audio>
 
     <script>
         const IMAGE_FOLDER = 'cards/';
         const IMAGE_EXT = '.jpg'; // 如果你的图片是png格式，请改为 '.png'
+
+        let audioCtx = null;
+        function playFallbackSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.6);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.8);
+            } catch (e) {}
+        }
+
+        function playMagicSound() {
+            const audio = document.getElementById('magic-audio');
+            if (audio) {
+                try {
+                    audio.currentTime = 0;
+                    const playPromise = audio.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => playFallbackSound());
+                    }
+                } catch (e) {
+                    playFallbackSound();
+                }
+            } else {
+                playFallbackSound();
+            }
+        }
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -253,29 +399,22 @@
             const similarSuitMap = { 0: 2, 2: 0, 1: 3, 3: 1 };
             let chosenCardsInfo = [];
 
-            // 50% 概率出纯字母局(J,Q,K)，50% 概率出纯数字局(2~10)
             if (Math.random() < 0.5) {
-                // --- 纯字母局 (J, Q, K 共 12张牌) ---
-                // J: 11, Q: 12, K: 13. 花色组: 0(黑), 1(红), 2(梅), 3(方)
                 let allFaceCards = [];
                 [11, 12, 13].forEach(rank => {
                     for (let suit = 0; suit < 4; suit++) {
                         allFaceCards.push({ suit: suit, rank: rank });
                     }
                 });
-                // 无重复洗牌，取前 6 张
                 shuffle(allFaceCards);
                 chosenCardsInfo = allFaceCards.slice(0, 6);
-
             } else {
-                // --- 纯数字局 (2~10 共 36张牌) ---
                 let allNumberCards = [];
                 for (let rank = 2; rank <= 10; rank++) {
                     for (let suit = 0; suit < 4; suit++) {
                         allNumberCards.push({ suit: suit, rank: rank });
                     }
                 }
-                // 无重复洗牌，取前 6 张
                 shuffle(allNumberCards);
                 chosenCardsInfo = allNumberCards.slice(0, 6);
             }
@@ -295,7 +434,6 @@
                 setB.push(IMAGE_FOLDER + String(cardNumB).padStart(2, '0') + IMAGE_EXT);
             });
 
-            // 打乱第二组相似牌顺序，只取5张
             shuffle(setB);
             const finalSetB = setB.slice(0, 5);
 
@@ -306,7 +444,6 @@
             const { setA, setB } = generateMagicCards();
             currentSetB = setB;
 
-            // 渲染第一步的6张原牌（绝对无重复）
             document.getElementById('grid-6').innerHTML = setA.map(src => `
                 <div class="card-img-box">
                     <img src="${src}" alt="扑克牌" onerror="this.src='cards/01.jpg'">
@@ -315,15 +452,16 @@
         }
 
         function goToStep2() {
-            document.getElementById('step-1').classList.add('hidden');
-            document.getElementById('step-2').classList.remove('hidden');
+            document.getElementById('card-start').classList.remove('active');
+            document.getElementById('card-step2').classList.add('active');
         }
 
         function goToStep3() {
-            // 第三步：前5张为相似明牌，最后第6张固定为背牌 (p.jpg)
+            playMagicSound();
+            
             let finalDisplayCards = [
                 ...currentSetB.map(src => ({ type: 'front', src: src })),
-                { type: 'back', src: 'cards/p.jpg' } // 固定在最后一位
+                { type: 'back', src: 'cards/p.jpg' }
             ];
 
             document.getElementById('grid-6-final').innerHTML = finalDisplayCards.map(item => {
@@ -342,14 +480,14 @@
                 }
             }).join('');
 
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-3').classList.remove('hidden');
+            document.getElementById('card-step2').classList.remove('active');
+            document.getElementById('card-step3').classList.add('active');
         }
 
         function resetGame() {
             initGame();
-            document.getElementById('step-3').classList.add('hidden');
-            document.getElementById('step-1').classList.remove('hidden');
+            document.getElementById('card-step3').classList.remove('active');
+            document.getElementById('card-start').classList.add('active');
         }
 
         window.onload = initGame;
