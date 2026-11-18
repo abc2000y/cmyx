@@ -206,7 +206,7 @@
             <button class="btn" onclick="goToStep2()">我记好了，收回牌阵 ➔</button>
         </div>
 
-        <!-- 阶段二：显示背面叠起来的牌堆 p.png -->
+        <!-- 阶段二：显示背面叠起来的牌堆 p.jpg-->
         <div id="step-2" class="hidden">
             <div class="instruction" style="text-align: center;">
                 ✨ <b>第二步：心灵感应与控制</b><br>
@@ -214,9 +214,9 @@
             </div>
 
             <div class="deck-box">
-                <img src="cards/p.png" alt="牌背面">
-                <img src="cards/p.png" alt="牌背面">
-                <img src="cards/p.png" alt="牌背面">
+                <img src="cards/p.jpg" alt="牌背面">
+                <img src="cards/p.jpg" alt="牌背面">
+                <img src="cards/p.jpg" alt="牌背面">
             </div>
 
             <button class="btn" onclick="goToStep3()" style="margin-top: 15px;">见证奇迹：牌面翻转 👁️</button>
@@ -237,7 +237,7 @@
 
     <script>
         const IMAGE_FOLDER = 'cards/';
-        const IMAGE_EXT = '.png'; // 如果你的图片是png格式，请改为 '.png'
+        const IMAGE_EXT = '.jpg'; // 如果你的图片是png格式，请改为 '.png'
 
         function getCardFileName(num) {
             return IMAGE_FOLDER + String(num).padStart(2, '0') + IMAGE_EXT;
@@ -304,7 +304,7 @@
             // 渲染第一步的6张原牌
             document.getElementById('grid-6').innerHTML = setA.map(src => `
                 <div class="card-img-box">
-                    <img src="${src}" alt="扑克牌" onerror="this.src='cards/01.png'">
+                    <img src="${src}" alt="扑克牌" onerror="this.src='cards/01.jpg'">
                 </div>
             `).join('');
         }
@@ -315,17 +315,17 @@
         }
 
         function goToStep3() {
-            // 第三步：前5张为随机打乱的明牌，最后第6张固定为背牌 (p.png)
+            // 第三步：前5张为随机打乱的明牌，最后第6张固定为背牌 (p.jpg)
             let finalDisplayCards = [
                 ...currentSetB.map(src => ({ type: 'front', src: src })),
-                { type: 'back', src: 'cards/p.png' } // 固定在最后一位
+                { type: 'back', src: 'cards/p.jpg' } // 固定在最后一位
             ];
 
             document.getElementById('grid-6-final').innerHTML = finalDisplayCards.map(item => {
                 if (item.type === 'front') {
                     return `
                         <div class="card-img-box">
-                            <img src="${item.src}" alt="扑克牌" onerror="this.src='cards/01.png'">
+                            <img src="${item.src}" alt="扑克牌" onerror="this.src='cards/01.jpg'">
                         </div>
                     `;
                 } else {
