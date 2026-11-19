@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天机秘卜 · 西方星座秘卜</title>
+  <style>
+    :root {
+      --bg-color: #0b0b0e;
+      --gold-main: #d4af37;
+      --gold-light: #f3e5ab;
+      --panel-bg: rgba(20, 20, 30, 0.94);
+      --border-gold: rgba(212, 175, 55, 0.38);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+      background: radial-gradient(circle at top, #181828 0%, var(--bg-color) 70%);
+      color: #f5e9c8;
+      min-height: 100vh;
+      padding: 14px 10px 32px;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 999;
+      padding: 6px 12px;
+      background: rgba(22, 22, 30, 0.88);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 20px;
+      color: var(--gold-light);
+      font-size: 0.84rem;
+      font-weight: bold;
+      text-decoration: none;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    .star-panel {
+      max-width: 760px;
+      margin: 34px auto 14px;
+      padding: 20px 14px;
+      border-radius: 18px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-gold);
+      text-align: center;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.75);
+    }
+
+    .star-panel h1 {
+      color: var(--gold-main);
+      font-size: 1.65rem;
+      letter-spacing: 3px;
+    }
+
+    .star-panel h2 {
+      color: var(--gold-light);
+      font-size: 1.12rem;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .star-panel p.lead {
+      color: rgba(243, 229, 171, 0.82);
+      font-size: 0.9rem;
+      margin-top: 8px;
+      line-height: 1.55;
+    }
+
+    .taiji-wrap {
+      width: 56px;
+      height: 56px;
+      margin: 12px auto 6px;
+    }
+
+    .taiji-svg {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 0 18px rgba(212, 175, 55, 0.45);
+      animation: rotateTaiji 24s linear infinite;
+    }
+
+    @keyframes rotateTaiji {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .game-taiji {
+      width: 68px;
+      height: 68px;
+      margin: 2px auto 8px;
+    }
+
+    .game-heading {
+      margin-top: 2px !important;
+      letter-spacing: 4px !important;
+      color: var(--gold-main) !important;
+    }
+
+    .game-subtitle {
+      margin: 5px 0 16px !important;
+      font-size: 0.84rem !important;
+    }
+
+    .star-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .star-card {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .star-menu,
+    .star-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0 6px;
+    }
+
+    .star-panel button {
+      border: 1px solid var(--gold-main);
+      border-radius: 10px;
+      padding: 11px 14px;
+      background: linear-gradient(135deg, #8c6623, #d4af37);
+      color: #111;
+      font-weight: bold;
+      font-size: 0.94rem;
+      cursor: pointer;
+      transition: transform 0.15s, filter 0.15s;
+      touch-action: manipulation;
+    }
+
+    .star-panel button:hover {
+      filter: brightness(1.12);
+    }
+
+    .star-panel button:active {
+      transform: scale(0.97);
+    }
+
+    .star-panel button.btn-sub {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--gold-light);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+
+    /* 左右两列（每列固定4个星座） */
+    .two-col-board {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0 10px;
+    }
+
+    .col-box {
+      border: 1px solid rgba(212, 175, 55, 0.36);
+      border-radius: 14px;
+      padding: 12px 8px;
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .col-title {
+      font-size: 0.94rem;
+      font-weight: bold;
+      color: var(--gold-main);
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(212, 175, 55, 0.28);
+    }
+
+    .star-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .star-card {
+      padding: 10px 6px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--gold-light);
+      font-size: 0.94rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .col-box button {
+      width: 100%;
+    }
+
+    .none-btn-wrap {
+      margin: 6px 0 14px;
+    }
+
+    .none-btn {
+      width: 100%;
+      max-width: 360px;
+      padding: 11px 18px !important;
+      background: rgba(212, 175, 55, 0.14) !important;
+      color: var(--gold-light) !important;
+      border: 1px dashed rgba(212, 175, 55, 0.65) !important;
+    }
+
+    /* 查询我的星座：三步时段选项卡片 */
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin: 16px 0;
+      text-align: left;
+    }
+
+    .option-card {
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      background: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.2s, background 0.2s;
+      touch-action: manipulation;
+    }
+
+    .option-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold-main);
+      background: rgba(212, 175, 55, 0.11);
+    }
+
+    .option-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--gold-main);
+      font-weight: bold;
+      font-size: 0.98rem;
+      margin-bottom: 4px;
+    }
+
+    .option-tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(212, 175, 55, 0.16);
+      color: var(--gold-light);
+      white-space: nowrap;
+    }
+
+    .option-desc {
+      font-size: 0.87rem;
+      color: #e6dfd0;
+      line-height: 1.5;
+    }
+
+    .star-panel select {
+      padding: 9px 10px;
+      margin: 6px 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border-gold);
+      background: #12121a;
+      color: var(--gold-light);
+      font-size: 0.94rem;
+    }
+
+    .direct-birth-bar {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(212, 175, 55, 0.25);
+    }
+
+    .star-chart {
+      width: 100%;
+      max-width: 340px;
+      height: 210px;
+      margin: 14px auto;
+      display: block;
+      background: radial-gradient(circle, #222042, #090c18);
+      border-radius: 14px;
+      border: 1px solid rgba(212, 175, 55, 0.25);
+    }
+
+    .star-name {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--gold-main);
+      margin: 10px 0 4px;
+    }
+
+    .meta-tags {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 10px 0 14px;
+    }
+
+    .meta-tag {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(212, 175, 55, 0.14);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      color: var(--gold-light);
+    }
+
+    .star-info {
+      margin: 11px 0;
+      padding: 13px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      text-align: left;
+      line-height: 1.72;
+    }
+
+    .star-info h3 {
+      color: var(--gold-main);
+      font-size: 0.98rem;
+      margin-bottom: 4px;
+    }
+
+    .star-info p {
+      font-size: 0.9rem;
+      color: #ece6d5;
+    }
+
+    @media (max-width: 420px) {
+      .star-panel {
+        padding: 16px 10px;
+        margin-top: 38px;
+      }
+      .two-col-board {
+        gap: 8px;
+      }
+      .star-card {
+        font-size: 0.86rem;
+        padding: 9px 4px;
+      }
+      .star-panel button {
+        padding: 10px 10px;
+        font-size: 0.88rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="back-btn">◀ 返回十阵</a>
+
+  <!-- 主入口 -->
+  <main class="star-panel" id="homePanel">
+    <h1>✨ 天机秘卜</h1>
+    <h2>西方星座秘卜</h2>
+    <div class="taiji-wrap">
+      <svg class="taiji-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="50" fill="#111115"/>
+        <path d="M50 0 A 50 50 0 0 1 50 100 A 25 25 0 0 1 50 50 A 25 25 0 0 0 50 0 Z" fill="#d4af37"/>
+        <circle cx="50" cy="25" r="5" fill="#d4af37"/>
+        <circle cx="50" cy="75" r="5" fill="#111115"/>
+      </svg>
+    </div>
+    <p class="lead">天机秘卜，三轮辨星；若不知星座，也可快速查询。</p>
+
+    <div class="star-menu">
+      <button onclick="startStarGuess()">🔮 开始星座秘卜</button>
+      <button class="btn-sub" onclick="startQueryStar()">📅 查询星座</button>
+    </div>
+  </main>
+
+  <!-- 功能区 -->
+  <section id="starPage" class="star-panel" style="display:none">
+
+    <!-- 第二页顶部太极图 -->
+    <div class="taiji-wrap game-taiji">
+      <svg class="taiji-svg" viewBox="0 0 100 100" aria-label="太极图">
+        <circle cx="50" cy="50" r="49" fill="#111115" stroke="#d4af37" stroke-width="2"/>
+        <path d="M50 1 A49 49 0 0 1 50 99 A24.5 24.5 0 0 1 50 50 A24.5 24.5 0 0 0 50 1 Z" fill="#d4af37"/>
+        <circle cx="50" cy="25.5" r="5" fill="#111115"/>
+        <circle cx="50" cy="74.5" r="5" fill="#d4af37"/>
+      </svg>
+    </div>
+    <h2 class="game-heading">天机秘阵</h2>
+    <p class="lead game-subtitle">静心默选 · 三轮辨星 · 揭晓天机</p>
+
+    <!-- 1. 星座秘卜：左右两列，每列固定4个星座，共3轮 -->
+    <div id="starGame" style="display:none">
+      <h3 id="starProgress" style="color:var(--gold-main);"></h3>
+      <p class="lead">心中默念你的星座，看看它在左列、右列，还是两列都没有。</p>
+
+      <div class="two-col-board">
+        <div class="col-box">
+          <div class="col-title">左列（4宫）</div>
+          <div id="leftCards" class="star-cards"></div>
+          <button onclick="pickColumn('L')">选左列</button>
+        </div>
+
+        <div class="col-box">
+          <div class="col-title">右列（4宫）</div>
+          <div id="rightCards" class="star-cards"></div>
+          <button onclick="pickColumn('R')">选右列</button>
+        </div>
+      </div>
+
+      <div class="none-btn-wrap">
+        <button class="none-btn" onclick="pickColumn('N')">无（左右两列都不在）</button>
+      </div>
+    </div>
+
+    <!-- 2. 查询我的星座：三步客观时段定位 + 月日直查 -->
+    <div id="starQuery" style="display:none">
+      <h3 id="queryProgress" style="color:var(--gold-main);"></h3>
+      <p id="queryQuestion" class="lead"></p>
+      <div id="queryOptionList" class="option-list"></div>
+
+      <div class="direct-birth-bar">
+        <p style="font-size:0.84rem; color:rgba(243,229,171,0.72); margin-bottom:6px;">或直接选出生月日查询：</p>
+        <select id="starMonth">
+          <option value="">月份</option>
+          <option value="1">1月</option>
+          <option value="2">2月</option>
+          <option value="3">3月</option>
+          <option value="4">4月</option>
+          <option value="5">5月</option>
+          <option value="6">6月</option>
+          <option value="7">7月</option>
+          <option value="8">8月</option>
+          <option value="9">9月</option>
+          <option value="10">10月</option>
+          <option value="11">11月</option>
+          <option value="12">12月</option>
+        </select>
+        <select id="starDay">
+          <option value="">日期</option>
+        </select>
+        <button class="btn-sub" onclick="calculateStarSign()">直接查询</button>
+      </div>
+    </div>
+
+    <div class="star-actions">
+      <button class="btn-sub" onclick="backStarHome()">返回主页</button>
+    </div>
+  </section>
+
+  <!-- 结果展示区 -->
+  <section id="starResult" class="star-panel" style="display:none">
+    <div id="starReveal">
+      <h2>✨ 星辰已经归位</h2>
+    </div>
+    <div id="starResultContent"></div>
+
+    <div class="star-actions">
+      <button onclick="startStarGuess()">再卜一次</button>
+      <button class="btn-sub" onclick="startQueryStar()">查询星座</button>
+      <button class="btn-sub" onclick="backStarHome()">返回主页</button>
+    </div>
+  </section>
+
+  <audio id="magic-audio" src="sound/magic.mp3" preload="auto"></audio>
+
+  <script src="star_data.js"></script>
+  <script>
+    const starDatabase = window.STAR_DATABASE;
+
+    if (!Array.isArray(starDatabase) || starDatabase.length !== 12) {
+      throw new Error("星座资料加载失败：请确认 star_data.js 与 HTML 放在同一目录。");
+    }
+
+    /* =====================================================
+       12星座 -> 唯一三轮路径
+       每一轮严格：左列4个、右列4个、两列都没有4个。
+       每个星座的三轮路径互不重复。
+    ===================================================== */
+    const uniqueStarPaths = {
+      1:  ["L", "L", "L"], // 白羊座
+      2:  ["L", "L", "R"], // 金牛座
+      3:  ["L", "L", "N"], // 双子座
+      4:  ["L", "R", "L"], // 巨蟹座
+      5:  ["R", "L", "L"], // 狮子座
+      6:  ["R", "R", "L"], // 处女座
+      7:  ["R", "N", "R"], // 天秤座
+      8:  ["R", "N", "N"], // 天蝎座
+      9:  ["N", "R", "R"], // 射手座
+      10: ["N", "R", "N"], // 摩羯座
+      11: ["N", "N", "R"], // 水瓶座
+      12: ["N", "N", "N"]  // 双鱼座
+    };
+
+    // Fisher-Yates 随机洗牌：只改变显示顺序，不改变答案编码
+    function shuffleStars(list) {
+      const result = [...list];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function getRoundColumns(roundIdx) {
+      const leftList = [];
+      const rightList = [];
+      starDatabase.forEach(star => {
+        const move = uniqueStarPaths[star.id][roundIdx];
+        if (move === "L") leftList.push(star);
+        else if (move === "R") rightList.push(star);
+      });
+      return { leftList, rightList };
+    }
+
+    const roundTitles = [
+      "第一轮（1 / 3）",
+      "第二轮（2 / 3）",
+      "第三轮（3 / 3）"
+    ];
+
+    let guessRound = 0;
+    let guessPath = [];
+    let selectedStar = null;
+
+    function playMagicAudio() {
+      const audio = document.getElementById("magic-audio");
+      if (!audio) return;
+      try {
+        audio.currentTime = 0;
+        const p = audio.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      } catch (e) {}
+    }
+
+    function startStarGuess() {
+      guessRound = 0;
+      guessPath = [];
+      selectedStar = null;
+
+      document.getElementById("homePanel").style.display = "none";
+      document.getElementById("starPage").style.display = "block";
+      document.getElementById("starGame").style.display = "block";
+      document.getElementById("starQuery").style.display = "none";
+      document.getElementById("starResult").style.display = "none";
+
+      renderGuessRound();
+    }
+
+    function renderGuessRound() {
+      document.getElementById("starProgress").textContent = roundTitles[guessRound];
+      const { leftList, rightList } = getRoundColumns(guessRound);
+
+      // 每轮重新洗牌：左右各4个，永远不超过4行
+      const shuffledLeft = shuffleStars(leftList);
+      const shuffledRight = shuffleStars(rightList);
+
+      document.getElementById("leftCards").innerHTML =
+        shuffledLeft.map(s => `<div class="star-card">${s.symbol} ${s.name}</div>`).join("");
+
+      document.getElementById("rightCards").innerHTML =
+        shuffledRight.map(s => `<div class="star-card">${s.symbol} ${s.name}</div>`).join("");
+    }
+
+    function pickColumn(choice) {
+      guessPath.push(choice);
+      if (guessRound < 2) {
+        guessRound++;
+        renderGuessRound();
+      } else {
+        const code = guessPath.join("-");
+        let matchedId = null;
+
+        for (const [idStr, pathArr] of Object.entries(uniqueStarPaths)) {
+          if (pathArr.join("-") === code) {
+            matchedId = Number(idStr);
+            break;
+          }
+        }
+
+        // 不把无效路径硬猜成其他星座，避免出现猜测错误
+        if (!matchedId) {
+          alert("星辰路径没有对应星座，请重新卜算。请按真实位置选择。 ");
+          startStarGuess();
+          return;
+        }
+
+        selectedStar = starDatabase.find(s => s.id === matchedId);
+        playMagicAudio();
+        showStarResult();
+      }
+    }
+
+    /* =====================================================
+       查询我的星座：三步客观时段定位 + 月日直查
+    ===================================================== */
+    const queryStep1 = {
+      title: "查询步骤 1 / 3 · 出生时段",
+      question: "请选择你的出生日期落在哪一个大时段：",
+      options: [
+        { code: "S1", badge: "3月21日—7月22日", name: "春末至盛夏星段", desc: "涵盖 白羊座、金牛座、双子座、巨蟹座。" },
+        { code: "S2", badge: "7月23日—11月22日", name: "盛夏至深秋星段", desc: "涵盖 狮子座、处女座、天秤座、天蝎座。" },
+        { code: "S3", badge: "11月23日—3月20日", name: "初冬至早春星段", desc: "涵盖 射手座、摩羯座、水瓶座、双鱼座。" }
+      ]
+    };
+
+    const queryStep2 = {
+      title: "查询步骤 2 / 3 · 每月旬段",
+      question: "你在该月内大约是哪一段日子出生的？",
+      options: [
+        { code: "D1", badge: "每月 1日—10日", name: "月初 · 上旬", desc: "每月的 1 号至 10 号之间。" },
+        { code: "D2", badge: "每月 11日—20日", name: "月中 · 中旬", desc: "每月的 11 号至 20 号之间。" },
+        { code: "D3", badge: "每月 21日—31日", name: "月末 · 下旬", desc: "每月的 21 号至月底之间。" }
+      ]
+    };
+
+    const queryStep3BySeason = {
+      S1: [
+        { targetId: 1, badge: "3/21—4/19", name: "♈ 白羊座", desc: "3 月 21 日 — 4 月 19 日出生。" },
+        { targetId: 2, badge: "4/20—5/20", name: "♉ 金牛座", desc: "4 月 20 日 — 5 月 20 日出生。" },
+        { targetId: 3, badge: "5/21—6/21", name: "♊ 双子座（若 6/22—7/22 请用下方月日直查巨蟹座）", desc: "5 月 21 日 — 6 月 21 日出生。" }
+      ],
+      S2: [
+        { targetId: 5, badge: "7/23—8/22", name: "♌ 狮子座", desc: "7 月 23 日 — 8 月 22 日出生。" },
+        { targetId: 6, badge: "8/23—9/22", name: "♍ 处女座", desc: "8 月 23 日 — 9 月 22 日出生。" },
+        { targetId: 7, badge: "9/23—10/23", name: "♎ 天秤座（若 10/24—11/22 请用下方月日直查天蝎座）", desc: "9 月 23 日 — 10 月 23 日出生。" }
+      ],
+      S3: [
+        { targetId: 9,  badge: "11/23—12/21", name: "♐ 射手座", desc: "11 月 23 日 — 12 月 21 日出生。" },
+        { targetId: 10, badge: "12/22—1/19",  name: "♑ 摩羯座", desc: "12 月 22 日 — 1 月 19 日出生。" },
+        { targetId: 11, badge: "1/20—2/18",   name: "♒ 水瓶座（若 2/19—3/20 请用下方月日直查双鱼座）", desc: "1 月 20 日 — 2 月 18 日出生。" }
+      ]
+    };
+
+    let queryStep = 0;
+    let queryPicks = [];
+
+    function startQueryStar() {
+      queryStep = 0;
+      queryPicks = [];
+
+      document.getElementById("homePanel").style.display = "none";
+      document.getElementById("starPage").style.display = "block";
+      document.getElementById("starGame").style.display = "none";
+      document.getElementById("starQuery").style.display = "block";
+      document.getElementById("starResult").style.display = "none";
+
+      renderQueryStep();
+    }
+
+    function renderQueryStep() {
+      const listEl = document.getElementById("queryOptionList");
+
+      if (queryStep === 0) {
+        document.getElementById("queryProgress").textContent = queryStep1.title;
+        document.getElementById("queryQuestion").textContent = queryStep1.question;
+        listEl.innerHTML = queryStep1.options.map(opt => `
+          <div class="option-card" onclick="pickQueryOption('${opt.code}')">
+            <div class="option-head">
+              <span>${opt.name}</span>
+              <span class="option-tag">${opt.badge}</span>
+            </div>
+            <div class="option-desc">${opt.desc}</div>
+          </div>
+        `).join("");
+      } else if (queryStep === 1) {
+        document.getElementById("queryProgress").textContent = queryStep2.title;
+        document.getElementById("queryQuestion").textContent = queryStep2.question;
+        listEl.innerHTML = queryStep2.options.map(opt => `
+          <div class="option-card" onclick="pickQueryOption('${opt.code}')">
+            <div class="option-head">
+              <span>${opt.name}</span>
+              <span class="option-tag">${opt.badge}</span>
+            </div>
+            <div class="option-desc">${opt.desc}</div>
+          </div>
+        `).join("");
+      } else {
+        const sCode = queryPicks[0] || "S1";
+        const dCode = queryPicks[1] || "D1";
+        const opts = queryStep3BySeason[sCode] || queryStep3BySeason.S1;
+
+        document.getElementById("queryProgress").textContent = "查询步骤 3 / 3 · 确认你的星座";
+        document.getElementById("queryQuestion").textContent = "点击对应日期区间即可查看详细星座解读：";
+
+        listEl.innerHTML = opts.map((opt, idx) => {
+          let finalId = opt.targetId;
+          let titleText = opt.name;
+          let badgeText = opt.badge;
+          let descText = opt.desc;
+
+          if (idx === 2 && dCode === "D3") {
+            if (sCode === "S1") { finalId = 4; titleText = "♋ 巨蟹座"; badgeText = "6/22—7/22"; descText = "6 月 22 日 — 7 月 22 日出生。"; }
+            if (sCode === "S2") { finalId = 8; titleText = "♏ 天蝎座"; badgeText = "10/24—11/22"; descText = "10 月 24 日 — 11 月 22 日出生。"; }
+            if (sCode === "S3") { finalId = 12; titleText = "♓ 双鱼座"; badgeText = "2/19—3/20"; descText = "2 月 19 日 — 3 月 20 日出生。"; }
+          }
+
+          return `
+            <div class="option-card" onclick="pickQueryOption('T:${finalId}')">
+              <div class="option-head">
+                <span>${titleText}</span>
+                <span class="option-tag">${badgeText}</span>
+              </div>
+              <div class="option-desc">${descText}</div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    function pickQueryOption(val) {
+      queryPicks.push(val);
+      if (queryStep < 2) {
+        queryStep++;
+        renderQueryStep();
+      } else {
+        const targetId = Number(val.split(":")[1]) || 1;
+        selectedStar = starDatabase.find(s => s.id === targetId) || starDatabase[0];
+        playMagicAudio();
+        showStarResult();
+      }
+    }
+
+    function updateStarDays() {
+      const month = Number(document.getElementById("starMonth").value);
+      const daySelect = document.getElementById("starDay");
+      const oldDay = Number(daySelect.value);
+      daySelect.innerHTML = '<option value="">日期</option>';
+      if (!month) return;
+      const days = new Date(2024, month, 0).getDate();
+      for (let d = 1; d <= days; d++) {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d + "日";
+        daySelect.appendChild(opt);
+      }
+      if (oldDay && oldDay <= days) daySelect.value = oldDay;
+    }
+
+    function getStarByBirthday(month, day) {
+      const val = month * 100 + day;
+      const ranges = [
+        [321, 419, 1], [420, 520, 2], [521, 621, 3], [622, 722, 4],
+        [723, 822, 5], [823, 922, 6], [923, 1023, 7], [1024, 1122, 8],
+        [1123, 1221, 9], [1222, 1231, 10], [101, 119, 10],
+        [120, 218, 11], [219, 320, 12]
+      ];
+      const found = ranges.find(r => val >= r[0] && val <= r[1]);
+      return found ? starDatabase.find(s => s.id === found[2]) : null;
+    }
+
+    function calculateStarSign() {
+      const month = Number(document.getElementById("starMonth").value);
+      const day = Number(document.getElementById("starDay").value);
+      if (!month || !day) {
+        alert("请先选择完整的出生月份和日期。");
+        return;
+      }
+      const star = getStarByBirthday(month, day);
+      if (!star) {
+        alert("日期不正确，请重新选择。");
+        return;
+      }
+      selectedStar = star;
+      playMagicAudio();
+      showStarResult();
+    }
+
+    function drawStarChart(star) {
+      const seed = star.id * 17;
+      const pts = [
+        [45 + (seed % 25), 55],
+        [115, 38 + (seed % 30)],
+        [175, 85 + (seed % 25)],
+        [235, 48 + (seed % 30)],
+        [285 - (seed % 20), 115],
+        [185, 162]
+      ];
+      let lines = "";
+      for (let i = 0; i < pts.length - 1; i++) {
+        lines += `<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[i+1][0]}" y2="${pts[i+1][1]}" stroke="#d4af37" stroke-width="1.6"/>`;
+      }
+      const dots = pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4.2" fill="#fff2b2"/>`).join("");
+      return `
+        <svg class="star-chart" viewBox="0 0 330 210">
+          ${lines}
+          ${dots}
+          <text x="165" y="196" fill="#f3e5ab" text-anchor="middle" font-size="13">${star.symbol} ${star.name} 星轨</text>
+        </svg>
+      `;
+    }
+
+    function showStarResult() {
+      document.getElementById("homePanel").style.display = "none";
+      document.getElementById("starPage").style.display = "none";
+      document.getElementById("starResult").style.display = "block";
+
+      const s = selectedStar;
+      document.getElementById("starResultContent").innerHTML = `
+        <div class="star-name">${s.symbol} ${s.name}</div>
+        <p style="color:var(--gold-light); font-size:0.92rem;">${s.dates}</p>
+
+        <div class="meta-tags">
+          <span class="meta-tag">${s.element}星座</span>
+          <span class="meta-tag">${s.modality}</span>
+          <span class="meta-tag">守护星：${s.planet}</span>
+          <span class="meta-tag">代表色：${s.color}</span>
+          <span class="meta-tag">幸运数：${s.luckyNum}</span>
+        </div>
+
+        ${drawStarChart(s)}
+
+        <div class="star-info">
+          <h3>🌟 性格底色</h3>
+          <p>${s.desc}</p>
+        </div>
+
+        <div class="star-info">
+          <h3>⚡ 核心优势与盲点</h3>
+          <p><b>优势：</b>${s.strengths}<br><b>盲点：</b>${s.blindspot}</p>
+        </div>
+
+        <div class="star-info">
+          <h3>💼 事业运势</h3>
+          <p>${s.career}</p>
+        </div>
+
+        <div class="star-info">
+          <h3>💰 财运提示</h3>
+          <p>${s.money}</p>
+        </div>
+
+        <div class="star-info">
+          <h3>❤️ 感情运势</h3>
+          <p>${s.love}</p>
+        </div>
+
+        <div class="star-info">
+          <h3>🔮 今日星语</h3>
+          <p>${s.fortune}</p>
+        </div>
+      `;
+    }
+
+    function backStarHome() {
+      document.getElementById("starPage").style.display = "none";
+      document.getElementById("starResult").style.display = "none";
+      document.getElementById("homePanel").style.display = "block";
+    }
+
+    // 自检：12条路径唯一，且每轮左4、右4、无4
+    (function selfCheck() {
+      const codes = Object.values(uniqueStarPaths).map(path => path.join("-"));
+      const uniqueCodes = new Set(codes);
+      let valid = uniqueCodes.size === 12;
+
+      for (let r = 0; r < 3; r++) {
+        const counts = { L: 0, R: 0, N: 0 };
+        Object.values(uniqueStarPaths).forEach(path => counts[path[r]]++);
+        if (counts.L !== 4 || counts.R !== 4 || counts.N !== 4) valid = false;
+        console.log(`第${r + 1}轮分布：左${counts.L}、右${counts.R}、无${counts.N}`);
+      }
+
+      if (!valid) console.error("星座路径校验失败，请检查 uniqueStarPaths。");
+      else console.log("星座路径校验通过：12个星座互不重复，每轮左右各4个、无4个。");
+    })();
+
+    document.getElementById("starMonth").addEventListener("change", updateStarDays);
+    updateStarDays();
+  </script>
+</body>
+</html>
