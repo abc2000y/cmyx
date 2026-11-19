@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>太极盲算·九阶秘阵</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0e;
+            --panel-bg: rgba(22, 22, 30, 0.95);
+            --gold-main: #d4af37;
+            --gold-light: #f3e5ab;
+            --border-gold: rgba(212, 175, 55, 0.35);
+            --green-ok: #2ecc71;
+            --red-err: #e74c3c;
+            --cell-font-size: clamp(0.72rem, 3.2vw, 1.05rem);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background-color: var(--bg-color);
+            color: #e8e8e8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 7px 6px 12px;
+        }
+
+        .brand-head {
+            width: 100%;
+            max-width: 760px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto 7px;
+            color: var(--gold-light);
+        }
+        .taiji-mark {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            filter: drop-shadow(0 0 7px rgba(212,175,55,.35));
+        }
+        .brand-title {
+            font-size: 1.08rem;
+            font-weight: 800;
+            letter-spacing: .16em;
+            color: var(--gold-main);
+        }
+        .brand-subtitle {
+            margin-top: 2px;
+            font-size: .65rem;
+            letter-spacing: .18em;
+            color: rgba(243,229,171,.62);
+            text-align: center;
+        }
+
+        .top-bar {
+            width: 100%;
+            max-width: 760px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            padding: 6px 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 0.68rem;
+            color: rgba(243, 229, 171, 0.65);
+        }
+
+        .stat-val {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--gold-main);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-val.timer {
+            color: #fff;
+        }
+
+        .stat-val.err {
+            color: #ff7675;
+        }
+
+        .sound-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            background: rgba(32, 32, 44, 0.92);
+            color: var(--gold-light);
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .sound-btn.muted {
+            opacity: 0.5;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sound-btn:active {
+            transform: scale(0.95);
+        }
+
+        .board-card {
+            width: 100%;
+            max-width: 760px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 8px 5px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .hint-line {
+            font-size: 0.84rem;
+            color: var(--gold-light);
+            text-align: center;
+            margin-bottom: 6px;
+            min-height: 18px;
+        }
+
+        .rows-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .matrix-row {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(212, 175, 55, 0.28);
+            background: rgba(14, 14, 20, 0.85);
+            cursor: pointer;
+            transition: transform 0.12s, border-color 0.2s, background 0.2s;
+        }
+
+        .matrix-row:hover:not(.solved) {
+            border-color: var(--gold-main);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        .matrix-row.solved {
+            border-color: var(--green-ok);
+            background: rgba(46, 204, 113, 0.12);
+            cursor: default;
+        }
+
+        .matrix-row.flash-wrong {
+            animation: flashRed 0.5s ease 2;
+        }
+
+        .matrix-row.flash-right {
+            animation: flashGreen 0.5s ease 2;
+        }
+
+        @keyframes flashRed {
+            0%, 100% { border-color: var(--red-err); box-shadow: 0 0 0 rgba(231, 76, 60, 0); }
+            50% { border-color: #ff4d4d; background: rgba(231, 76, 60, 0.28); box-shadow: 0 0 14px rgba(231, 76, 60, 0.7); }
+        }
+
+        @keyframes flashGreen {
+            0%, 100% { border-color: var(--green-ok); box-shadow: 0 0 0 rgba(46, 204, 113, 0); }
+            50% { border-color: #55efc4; background: rgba(46, 204, 113, 0.28); box-shadow: 0 0 14px rgba(46, 204, 113, 0.75); }
+        }
+
+        .cells-grid {
+            flex: 1;
+            display: grid;
+            gap: 1px;
+            min-width: 0;
+        }
+
+        .cell {
+            min-width: 0;
+            min-height: 0;
+            aspect-ratio: 1 / 1;
+            border-radius: 5px;
+            background: #1b1b26;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: var(--cell-font-size);
+            color: #fff;
+            line-height: 1;
+        }
+
+        .matrix-row.solved .cell {
+            background: rgba(46, 204, 113, 0.08);
+            border-color: rgba(46, 204, 113, 0.25);
+            color: transparent;
+        }
+
+        .row-sum-box {
+            min-width: 30px;
+            padding: 3px 1px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(212, 175, 55, 0.28);
+            text-align: center;
+            font-weight: bold;
+            color: rgba(243, 229, 171, 0.45);
+            font-size: 0.78rem;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+
+        .matrix-row.solved .row-sum-box {
+            background: rgba(46, 204, 113, 0.22);
+            border: 1px solid var(--green-ok);
+            color: #7bed9f;
+        }
+
+        .summary-box {
+            text-align: center;
+            padding: 20px 12px;
+            display: none;
+        }
+
+        .summary-box.show {
+            display: block;
+        }
+
+        .summary-box h2 {
+            color: var(--gold-main);
+            font-size: 1.5rem;
+            margin-bottom: 14px;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 16px 0 22px;
+            background: rgba(12, 12, 18, 0.8);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            padding: 14px 8px;
+        }
+
+        .btn {
+            padding: 11px 24px;
+            border: none;
+            border-radius: 22px;
+            background: linear-gradient(180deg, #d49400 0%, #aa7000 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        @media (max-width: 420px) {
+            body { padding-top: 5px; }
+            .brand-head { margin-bottom: 5px; }
+            .taiji-mark { width: 36px; height: 36px; flex-basis: 36px; }
+            .brand-title { font-size: .98rem; }
+            .stat-label { font-size: .61rem; }
+            .stat-val { font-size: .88rem; }
+            .sound-btn { width: 31px; height: 31px; font-size: 1rem; }
+            .board-card { padding: 6px 3px; border-radius: 12px; }
+            .hint-line { font-size: .72rem; margin-bottom: 5px; }
+            .rows-wrap { gap: 2px; }
+            .matrix-row { gap: 2px; padding: 1px; border-radius: 7px; }
+            .row-sum-box { min-width: 27px; font-size: .68rem; padding: 2px 0; }
+            .cell { border-radius: 3px; }
+        }
+        @media (max-height: 720px) {
+            body { padding-top: 4px; padding-bottom: 6px; }
+            .brand-head { margin-bottom: 4px; }
+            .taiji-mark { width: 32px; height: 32px; flex-basis: 32px; }
+            .top-bar { margin-bottom: 5px; }
+            .board-card { padding-top: 5px; padding-bottom: 5px; }
+            .hint-line { margin-bottom: 4px; min-height: 15px; }
+            .rows-wrap { gap: 2px; }
+            .matrix-row { padding: 1px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand-head">
+        <svg class="taiji-mark" viewBox="0 0 100 100" role="img" aria-label="太极图">
+            <circle cx="50" cy="50" r="47" fill="#f3e5ab"/>
+            <path d="M50 3 A47 47 0 0 1 50 97 A23.5 23.5 0 0 1 50 50 A23.5 23.5 0 0 0 50 3Z" fill="#111116"/>
+            <circle cx="50" cy="26.5" r="7" fill="#111116"/>
+            <circle cx="50" cy="73.5" r="7" fill="#f3e5ab"/>
+            <circle cx="50" cy="50" r="47" fill="none" stroke="#d4af37" stroke-width="3"/>
+        </svg>
+        <div>
+            <div class="brand-title">太极盲算 · 九阶秘阵</div>
+            <div class="brand-subtitle">静心观数 · 由简入繁</div>
+        </div>
+    </div>
+
+    <div class="top-bar">
+        <div class="stat-item">
+            <span class="stat-label">当前方阵</span>
+            <span class="stat-val" id="level-text">4×4</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">已锁行数</span>
+            <span class="stat-val" id="progress-text">0 / 4</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">选错次数</span>
+            <span class="stat-val err" id="error-text">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">全程计时</span>
+            <span class="stat-val timer" id="timer-text">00:00.0</span>
+        </div>
+        <button class="sound-btn" id="sound-btn" title="开启/关闭音效" onclick="toggleSound()">🔊</button>
+    </div>
+
+    <div class="board-card">
+        <div class="hint-line" id="hint-line">心算每行总和，点击当前「和值最小」的一行</div>
+        <div class="rows-wrap" id="rows-wrap"></div>
+
+        <div class="summary-box" id="summary-box">
+            <h2>九阶秘阵 · 全部通关</h2>
+            <p style="color:#ccc;">你已完成全部六级盲算方阵挑战！</p>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <span class="stat-label">总用时</span>
+                    <span class="stat-val timer" id="final-time">00:00.0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">选错次数</span>
+                    <span class="stat-val err" id="final-errors">0</span>
+                </div>
+            </div>
+            <button class="btn" onclick="startFullGame()">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        const LEVELS = [4, 5, 6, 7, 8, 9];
+
+        let levelIdx = 0;
+        let gridData = [];
+        let rowSums = [];
+        let solvedRows = [];
+
+        let errorCount = 0;
+        let startTime = 0;
+        let elapsedMs = 0;
+        let timerInterval = null;
+        let gameFinished = false;
+
+        let soundEnabled = true;
+        let audioCtx = null;
+        let inputLocked = false;
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-btn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            btn.classList.toggle('muted', !soundEnabled);
+        }
+
+        function playTone(type, step = 1, total = 4) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const now = audioCtx.currentTime;
+                const playNote = (freq, at, duration, wave = 'sine', volume = 0.16) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = wave;
+                    osc.frequency.setValueAtTime(freq, at);
+                    gain.gain.setValueAtTime(volume, at);
+                    gain.gain.exponentialRampToValueAtTime(0.001, at + duration);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(at);
+                    osc.stop(at + duration);
+                };
+
+                if (type === 'ok') {
+                    // 每锁定一行，音高逐步上扬；每个方阵的最后一行使用更明亮的收束音
+                    const scale = [523.25, 587.33, 659.25, 783.99, 880, 987.77, 1046.5, 1174.66, 1318.51];
+                    const freq = scale[Math.min(step - 1, scale.length - 1)];
+                    playNote(freq, now, 0.18, 'sine', 0.17);
+                    if (step === total) {
+                        playNote(freq * 1.25, now + 0.09, 0.22, 'triangle', 0.11);
+                    }
+                } else if (type === 'level') {
+                    // 每次晋级使用不同音程，级别越高，旋律越明亮
+                    const base = 440 + (step * 35);
+                    [1, 1.25, 1.5].forEach((ratio, i) => {
+                        playNote(base * ratio, now + i * 0.11, 0.24, 'triangle', 0.15);
+                    });
+                } else if (type === 'err') {
+                    playNote(190, now, 0.24, 'sawtooth', 0.15);
+                    playNote(125, now + 0.08, 0.20, 'sawtooth', 0.10);
+                } else if (type === 'win') {
+                    [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((freq, i) => {
+                        playNote(freq, now + i * 0.10, 0.28, 'triangle', 0.17);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function formatTime(ms) {
+            const totalSec = ms / 1000;
+            const mins = Math.floor(totalSec / 60);
+            const secs = (totalSec % 60).toFixed(1).padStart(4, '0');
+            return `${String(mins).padStart(2, '0')}:${secs}`;
+        }
+
+        function startTimer() {
+            stopTimer();
+            startTime = performance.now() - elapsedMs;
+            timerInterval = setInterval(() => {
+                elapsedMs = performance.now() - startTime;
+                document.getElementById('timer-text').textContent = formatTime(elapsedMs);
+            }, 100);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function buildLevel(n) {
+            let pool = [];
+            while (pool.length < n * n) {
+                for (let v = 1; v <= 9 && pool.length < n * n; v++) {
+                    pool.push(v);
+                }
+            }
+
+            for (let attempt = 0; attempt < 30; attempt++) {
+                shuffle(pool);
+                const candidate = [];
+                const sums = [];
+                for (let r = 0; r < n; r++) {
+                    const row = pool.slice(r * n, (r + 1) * n);
+                    candidate.push(row);
+                    sums.push(row.reduce((a, b) => a + b, 0));
+                }
+                if (new Set(sums).size === n || attempt === 29) {
+                    gridData = candidate;
+                    rowSums = sums;
+                    break;
+                }
+            }
+
+            solvedRows = Array(n).fill(false);
+            updateHeader();
+            renderBoard();
+        }
+
+        function getMinUnsolvedRowIndex() {
+            let minSum = Infinity;
+            let minIdx = -1;
+            for (let r = 0; r < rowSums.length; r++) {
+                if (!solvedRows[r] && rowSums[r] < minSum) {
+                    minSum = rowSums[r];
+                    minIdx = r;
+                }
+            }
+            return minIdx;
+        }
+
+        function updateHeader() {
+            const n = LEVELS[levelIdx];
+            const doneCount = solvedRows.filter(Boolean).length;
+            document.getElementById('level-text').textContent = `${n}×${n}`;
+            document.getElementById('progress-text').textContent = `${doneCount} / ${n}`;
+            document.getElementById('error-text').textContent = String(errorCount);
+        }
+
+        function renderBoard() {
+            const n = LEVELS[levelIdx];
+            const wrap = document.getElementById('rows-wrap');
+            wrap.innerHTML = '';
+
+            for (let r = 0; r < n; r++) {
+                const isSolved = solvedRows[r];
+                const rowEl = document.createElement('div');
+                rowEl.className = `matrix-row ${isSolved ? 'solved' : ''}`;
+                rowEl.id = `row-${r}`;
+                rowEl.onclick = () => handleRowClick(r);
+
+                const cellsEl = document.createElement('div');
+                cellsEl.className = 'cells-grid';
+                cellsEl.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+
+                for (let c = 0; c < n; c++) {
+                    const cellEl = document.createElement('div');
+                    cellEl.className = 'cell';
+                    cellEl.textContent = isSolved ? '' : gridData[r][c];
+                    cellsEl.appendChild(cellEl);
+                }
+
+                const sumEl = document.createElement('div');
+                sumEl.className = 'row-sum-box';
+                sumEl.textContent = isSolved ? rowSums[r] : '？';
+
+                rowEl.appendChild(cellsEl);
+                rowEl.appendChild(sumEl);
+                wrap.appendChild(rowEl);
+            }
+        }
+
+        function triggerWrongAndRightFlash(wrongIdx, rightIdx) {
+            inputLocked = true;
+            const wrongEl = document.getElementById(`row-${wrongIdx}`);
+            const rightEl = rightIdx !== -1 ? document.getElementById(`row-${rightIdx}`) : null;
+
+            if (wrongEl) {
+                wrongEl.classList.remove('flash-wrong');
+                void wrongEl.offsetWidth;
+                wrongEl.classList.add('flash-wrong');
+            }
+
+            setTimeout(() => {
+                if (rightEl) {
+                    rightEl.classList.remove('flash-right');
+                    void rightEl.offsetWidth;
+                    rightEl.classList.add('flash-right');
+                }
+            }, 260);
+
+            setTimeout(() => {
+                if (wrongEl) wrongEl.classList.remove('flash-wrong');
+                if (rightEl) rightEl.classList.remove('flash-right');
+                inputLocked = false;
+            }, 1150);
+        }
+
+        function handleRowClick(r) {
+            if (gameFinished || solvedRows[r] || inputLocked) return;
+
+            const minIdx = getMinUnsolvedRowIndex();
+            const hintEl = document.getElementById('hint-line');
+
+            if (r === minIdx) {
+                const completedNow = solvedRows.filter(Boolean).length + 1;
+                playTone('ok', completedNow, LEVELS[levelIdx]);
+                solvedRows[r] = true;
+                gridData[r] = gridData[r].map(() => null);
+                updateHeader();
+                renderBoard();
+
+                const allDone = solvedRows.every(Boolean);
+                if (allDone) {
+                    if (levelIdx < LEVELS.length - 1) {
+                        playTone('level', levelIdx + 1);
+                        levelIdx++;
+                        hintEl.textContent = `晋级 ${LEVELS[levelIdx]}×${LEVELS[levelIdx]}！继续盲算最小行和`;
+                        setTimeout(() => buildLevel(LEVELS[levelIdx]), 320);
+                    } else {
+                        finishAll();
+                    }
+                } else {
+                    hintEl.textContent = `第 ${r + 1} 行和值为 ${rowSums[r]}，已锁定！继续找最小行`;
+                }
+            } else {
+                errorCount++;
+                updateHeader();
+                playTone('err');
+                hintEl.textContent = `第 ${r + 1} 行非最小，已用绿框提示当前最小行`;
+                triggerWrongAndRightFlash(r, minIdx);
+            }
+        }
+
+        function finishAll() {
+            gameFinished = true;
+            stopTimer();
+            playTone('win');
+            elapsedMs = performance.now() - startTime;
+            const finalStr = formatTime(elapsedMs);
+            document.getElementById('timer-text').textContent = finalStr;
+            document.getElementById('rows-wrap').innerHTML = '';
+            document.getElementById('hint-line').textContent = '全阵挑战完成！';
+            document.getElementById('final-time').textContent = finalStr;
+            document.getElementById('final-errors').textContent = String(errorCount);
+            document.getElementById('summary-box').classList.add('show');
+        }
+
+        function startFullGame() {
+            levelIdx = 0;
+            errorCount = 0;
+            elapsedMs = 0;
+            gameFinished = false;
+            inputLocked = false;
+            document.getElementById('summary-box').classList.remove('show');
+            document.getElementById('hint-line').textContent = '心算每行总和，点击当前「和值最小」的一行';
+            buildLevel(LEVELS[0]);
+            startTimer();
+        }
+
+        window.onload = startFullGame;
+    </script>
+</body>
+</html>
