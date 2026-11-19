@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>太极盲算·九阶秘阵</title>
+    <title>太极速算·九阶秘阵</title>
     <style>
         :root {
             --bg-color: #0b0b0e;
@@ -327,7 +327,7 @@
             <circle cx="50" cy="50" r="47" fill="none" stroke="#d4af37" stroke-width="3"/>
         </svg>
         <div>
-            <div class="brand-title">太极盲算 · 九阶秘阵</div>
+            <div class="brand-title">太极速算 · 九阶秘阵</div>
             <div class="brand-subtitle">静心观数 · 由简入繁</div>
         </div>
     </div>
@@ -358,7 +358,7 @@
 
         <div class="summary-box" id="summary-box">
             <h2>九阶秘阵 · 全部通关</h2>
-            <p style="color:#ccc;">你已完成全部六级盲算方阵挑战！</p>
+            <p style="color:#ccc;">你已完成全部六级速算方阵挑战！</p>
             <div class="summary-stats">
                 <div class="stat-item">
                     <span class="stat-label">总用时</span>
@@ -507,7 +507,7 @@
             let minSum = Infinity;
             let minIdx = -1;
             for (let r = 0; r < rowSums.length; r++) {
-                if (!solvedRows[r] && rowSums[r] < minSum) {
+                if (!solyvedRows[r] && rowSums[r] < minSum) {
                     minSum = rowSums[r];
                     minIdx = r;
                 }
@@ -601,7 +601,7 @@
                     if (levelIdx < LEVELS.length - 1) {
                         playTone('level', levelIdx + 1);
                         levelIdx++;
-                        hintEl.textContent = `晋级 ${LEVELS[levelIdx]}×${LEVELS[levelIdx]}！继续盲算最小行和`;
+                        hintEl.textContent = `晋级 ${LEVELS[levelIdx]}×${LEVELS[levelIdx]}！继续速算最小行和`;
                         setTimeout(() => buildLevel(LEVELS[levelIdx]), 320);
                     } else {
                         finishAll();
